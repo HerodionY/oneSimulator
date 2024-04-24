@@ -7,7 +7,7 @@ import lombok.val;
 import routing.community.Duration;
 // import reinforcement.qlearn.QLearner;
 
-public class CCRouting extends ActiveRouter {
+public class CCRouting extends ActiveRouter implements CongestionRate {
 	// private QLearner tessss;
 	private Map<DTNHost, Map<List<Duration>, Integer>> amountDataPerDuration;
 
@@ -26,16 +26,16 @@ public class CCRouting extends ActiveRouter {
 	public double totalContactTime = 0;
 	// private List<Duration> interval;
 	// private Map<Double, Integer> cr;
-	int numberTes = 1;
 
-	private Map<DTNHost, Map<Double, Integer>> dataPerInterval;
-	private Map<DTNHost, Double> connWithOther;
-	private double startTime;
+	// private Map<DTNHost, Map<Double, Integer>> dataPerInterval;
+	// private Map<DTNHost, Double> connWithOther;
+	// private double startTime;
 	private Set<DTNHost> setTes;
 
 	private Map<DTNHost, List<Duration>> tesDurPerNode;
 	private List<Double> cr;
-	private List<Double> dataInContact;
+	// private List<Double> dataInContact;
+	private Map<DTNHost, List<Double>> dataInContact;
 
 	public static final double SMOOTHING_FACTOR = 0.5;
 
@@ -49,11 +49,11 @@ public class CCRouting extends ActiveRouter {
 		// tesSet = new HashSet<DTNHost>();
 		startTimestamps = new HashMap<DTNHost, Double>();
 		connHistory = new HashMap<DTNHost, List<Duration>>();
-		connWithOther = new HashMap<DTNHost, Double>();
+		// connWithOther = new HashMap<DTNHost, Double>();
 		setTes = new HashSet<DTNHost>();
 		tesDurPerNode = new HashMap<>();
 		cr = new ArrayList<Double>();
-		dataInContact = new ArrayList<Double>();
+		dataInContact = new HashMap<DTNHost, List<Double>>();
 	}
 
 	/**
@@ -66,7 +66,7 @@ public class CCRouting extends ActiveRouter {
 		amountDataPerDuration = new HashMap<DTNHost, Map<List<Duration>, Integer>>();
 		startTimestamps = r.startTimestamps;
 		connHistory = r.connHistory;
-		connWithOther = r.connWithOther;
+		// connWithOther = r.connWithOther;
 		setTes = r.setTes;
 		tesDurPerNode = r.tesDurPerNode;
 		cr = r.cr;
@@ -161,18 +161,27 @@ public class CCRouting extends ActiveRouter {
 			// this.dataInContact.add(dataContact);
 			// this.cr.add(this.avgCr());
 
+			// from DTNHost
 			getHost().dataInContact.add(dataContact);
 			getHost().congestionRatio.add(this.avgList(getHost().dataInContact));
-			int lastCr = getHost().congestionRatio.size()-1;
-			double oLast = getHost().congestionRatio.get(lastCr);
-			this.countEma(oLast);
+
+			List<Double> datas = this.dataInContact.get(getHost()) != null ? this.dataInContact.get(getHost()) : new ArrayList<Double>();
+			datas.add(dataContact);
+
+			this.dataInContact.put(getHost(), datas);
+
+			// from DTNHost
+			// int lastCr = getHost().congestionRatio.size()-1;
+			// double oLast = getHost().congestionRatio.get(lastCr);
+			// this.countEma(oLast);
 			
 			lastUpdateTime = SimClock.getTime();
 
 			this.dataReceived = 0;
 			this.dataTransferred = 0;
 
-			testingCountEma();
+			// from DTNHost
+			// testingCountEma();
 		}
 	}
 
@@ -213,11 +222,21 @@ public class CCRouting extends ActiveRouter {
 		testingDummyReward(1/value);
 	}
 
-	public List<Double> getDataInContact() {
-		return this.dataInContact;
-	}
+	// public List<Double> getDataInContact() {
+	// 	return this.dataInContact;
+	// }
 
 	public List<Double> getCr() {
 		return this.cr;
+	}
+
+	@Override
+	public List<Double> getCRNode(DTNHost host) {
+		return this.dataInContact.get(host);
+	}
+
+	@Override
+	public List<Double> getDataInContactNode(DTNHost host) {
+		return this.dataInContact.get(host);
 	}
 }

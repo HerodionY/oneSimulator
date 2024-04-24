@@ -18,6 +18,7 @@ import core.SimScenario;
 import core.UpdateListener;
 import routing.ActiveRouter;
 import routing.CCRouting;
+import routing.CongestionRate;
 import routing.MessageRouter;
 import routing.NodeConn;
 import routing.community.Duration;
@@ -81,6 +82,7 @@ public class TestingReport extends Report {
 			// tes.append(d + ", " + router.getMsgReceived() + "\n");
 			
 				CCRouting router = (CCRouting) d.getRouter();
+				CongestionRate cr = (CongestionRate) router;
 				// NodeConn in = (NodeConn) router;
 			// if(d.toString().equals("p18")) {
 			// 	CCRouting router = (CCRouting) d.getRouter();
@@ -94,7 +96,9 @@ public class TestingReport extends Report {
 			// tes.append(d + ", " + router.getNodeConn() + "\n");
 			// tes.append(d + ", " + router.getMsgReceived() + "\n");
 
-			tes.append(d + ", " + d.dummyForReward + "\n");
+			tes.append(d + ", " + cr.getDataInContactNode(d) + "\n");
+			// tes.append(d + ", " + cr.getCRNode(d) + "\n");
+			// tes.append(d + ", " + d.dummyForReward + "\n");
 			// if (d.toString().equals("p0")) {
 			// 	// Map<DTNHost, List<Duration>> dur = d.listDurPerNode;
 			// 	Map<DTNHost, List<Duration>> dur = router.getTesDur();
