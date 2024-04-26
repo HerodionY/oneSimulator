@@ -81,7 +81,8 @@ public class TestingReport extends Report {
 			// ActiveRouter ar = (ActiveRouter) r;
 			// tes.append(d + ", " + router.getMsgReceived() + "\n");
 			
-				CCRouting router = (CCRouting) d.getRouter();
+				ActiveRouter act = (ActiveRouter) d.getRouter();
+				CCRouting router = (CCRouting) act;
 				CongestionRate cr = (CongestionRate) router;
 				// NodeConn in = (NodeConn) router;
 			// if(d.toString().equals("p18")) {
@@ -96,7 +97,11 @@ public class TestingReport extends Report {
 			// tes.append(d + ", " + router.getNodeConn() + "\n");
 			// tes.append(d + ", " + router.getMsgReceived() + "\n");
 
-			tes.append(d + ", " + cr.getDataInContactNode(d) + "\n");
+			// if(d.toString().equals("p0")) {
+			// 	tes.append(d + ", " + router.getQl().qvalues.length + "\n");
+			// }
+			tes.append(d + ", " + d.setofHosts.size() + "\n");
+			// tes.append(d + ", " + cr.getDataInContactNode(d).size() + "\n");
 			// tes.append(d + ", " + cr.getCRNode(d) + "\n");
 			// tes.append(d + ", " + d.dummyForReward + "\n");
 			// if (d.toString().equals("p0")) {
