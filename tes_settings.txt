@@ -8,7 +8,8 @@ Scenario.name = tes_RL
 Scenario.simulateConnections = true
 Scenario.updateInterval = 0.1
 # 43200s == 12h
-Scenario.endTime = 43200
+#Scenario.endTime = 43200
+Scenario.endTime = 274883
 
 
 ## Interface-specific settings:
@@ -55,15 +56,17 @@ Scenario.nrofHostGroups = 1
 
 
 # Common settings for all groups
-Group.movementModel = ShortestPathMapBasedMovement
+#Group.movementModel = ShortestPathMapBasedMovement
 #Group.movementModel = StationaryMovement
+Group.movementModel = RandomWaypoint
 Group.router = CCRouting
 
-CCRouting.updateInterval = 1200
+# 900 => 15 menit
+CCRouting.updateInterval = 900
 # total state didapat dari jumlah keseluruhan node
 CCRouting.totalState = 40
 # total action didapat dari : 
-#    (SimScenario.endTime / updateInterval) - 1
+#    (SimScenario.endTime / updateInterval)
 CCRouting.totalAction = 35
 
 # Decision Engine Router

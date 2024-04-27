@@ -3,63 +3,50 @@ package routing;
 import java.util.*;
 import core.*;
 import reinforcement.*;
-// import javafx.beans.property.SimpleListProperty;
-// import lombok.val;
-// import routing.community.Duration;
-// import reinforcement.qlearn.QLearner;
 
 public class CCRouting extends ActiveRouter implements CongestionRate {
-	// private QLearner tessss;
-	// private Map<DTNHost, Map<List<Duration>, Integer>> amountDataPerDuration;
-
-	// protected Map<DTNHost, Double> startTimestamps;
-	// protected Map<DTNHost, List<Duration>> connHistory;
-	// private Map<Duration, Double> congestionRate;
-	// private static Set<DTNHost> tesSet;
-	// private double congestionRatio;
-	// private List<Duration> listD;
 	private int msgReceived = 0;
 	private int msgTransferred = 0;
-	private int dataReceived = 0;
-	private int dataTransferred = 0;
-	private double lastUpdateTime = 0;
-	// private final double UPDATE_INTERVAL = 900;
 
 	/** update interval diset dari settings */
 	private double updateInterval;
 
-	public double totalContactTime = 0;
-	// private List<Duration> interval;
-	// private Map<Double, Integer> cr;
-
-	// private Map<DTNHost, Map<Double, Integer>> dataPerInterval;
-	// private Map<DTNHost, Double> connWithOther;
-	// private double startTime;
-	// private Set<DTNHost> setTes;
-
-	// private Map<DTNHost, List<Duration>> tesDurPerNode;
-	// private List<Double> cr;
-	// private List<Double> dataInContact;
+	// Variable untuk Congestion Ratio
+	private int dataReceived = 0;
+	private int dataTransferred = 0;
+	private double lastUpdateTime = 0;
+	private double totalContactTime = 0;
 	private Map<DTNHost, List<Double>> dataInContact;
+	private Map<DTNHost, List<Double>> congestionRatio;
+	private Map<DTNHost, List<Double>> ema;
+	private static final double SMOOTHING_FACTOR = 0.5;
 
-	// Parameter untuk learning
-	public static final double SMOOTHING_FACTOR = 0.5;
+	// Variable untuk learning
+	private QLearning ql;
+	private IExplorationPolicy explorationPolicy;
 	private int totalState;
 	private int totalAction;
+	/** 
+	 * Integer sebagai address node, 
+	 * jika status masih <CODE>pending</CODE> 
+	 * atau <CODE>false</CODE> maka tidak dikirim
+	 * */
+	private Map<Integer, Boolean> waitForReward;
 
 	/** namespace settings ({@value}) */
-	public static final String CCRouting_NS = "CCRouting";
+	private static final String CCRouting_NS = "CCRouting";
 	/** nilai update interval atur di settings */
-	public static final String UPDATE_INTERVAL = "updateInterval";
+	private static final String UPDATE_INTERVAL = "updateInterval";
 	/**
 	 * Karena node dianggap sebagai state,
 	 * maka state diinisalisasi sejumlah dengan total node
 	 */
-	public static final String TOTAL_STATE = "totalState";
-	public static final String TOTAL_ACTION = "totalAction";
-
-	private QLearning ql;
-	private IExplorationPolicy explorationPolicy;
+	private static final String TOTAL_STATE = "totalState";
+	/** 
+	 * Total action didapat dari 
+	 * <CODE>(SimScenario.endTime / updateInterval)</CODE>
+	 * */
+	private static final String TOTAL_ACTION = "totalAction";
 
 	// private boolean tesIsReceiving = false;
 	/**
@@ -73,19 +60,10 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 		updateInterval = ccSettings.getInt(UPDATE_INTERVAL);
 		totalState = ccSettings.getInt(TOTAL_STATE);
 		totalAction = ccSettings.getInt(TOTAL_ACTION);
-		// tesSet = new HashSet<DTNHost>();
-		// startTimestamps = new HashMap<DTNHost, Double>();
-		// connHistory = new HashMap<DTNHost, List<Duration>>();
-		// connWithOther = new HashMap<DTNHost, Double>();
-		// setTes = new HashSet<DTNHost>();
-		// tesDurPerNode = new HashMap<>();
-		// cr = new ArrayList<Double>();
 		dataInContact = new HashMap<DTNHost, List<Double>>();
+		congestionRatio = new HashMap<DTNHost, List<Double>>();
+		ema = new HashMap<DTNHost, List<Double>>();
 		initQL();
-		// System.out.println("tes");
-		// System.out.println(SimScenario.getInstance().getEndTime() / UPDATE_INTERVAL -
-		// 1);
-		// System.out.println(SimScenario.getInstance().getEndTime());
 	}
 
 	/**
@@ -98,21 +76,13 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 		updateInterval = r.updateInterval;
 		totalState = r.totalState;
 		totalAction = r.totalAction;
-		// amountDataPerDuration = new HashMap<DTNHost, Map<List<Duration>, Integer>>();
-		// startTimestamps = r.startTimestamps;
-		// connHistory = r.connHistory;
-		// connWithOther = r.connWithOther;
-		// setTes = r.setTes;
-		// tesDurPerNode = r.tesDurPerNode;
-		// cr = r.cr;
 		dataInContact = r.dataInContact;
-		ql = r.ql;
-		// initQL();
+		congestionRatio = r.congestionRatio;
+		ema = r.ema;
+		initQL();
 	}
 
 	protected void initQL() {
-		// System.out.println(SimScenario.getInstance().getEndTime() / UPDATE_INTERVAL -
-		// 1);
 		this.explorationPolicy = new EpsilonGreedyExploration(0.989);
 
 		this.ql = new QLearning(totalState, totalAction, this.explorationPolicy, false);
@@ -164,8 +134,6 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 	@Override
 	public void update() {
 		super.update();
-		// System.out.println(SimScenario.getInstance().getEndTime() / UPDATE_INTERVAL -
-		// 1);
 
 		if ((SimClock.getTime() - lastUpdateTime) >= updateInterval) {
 			countCongestionRatio(); // hitung CR
@@ -212,22 +180,26 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 
 	public void countCongestionRatio() {
 		double dataContact = 0;
-		dataContact = (this.dataReceived + this.dataTransferred) / totalContactTime;
+		dataContact = (this.dataReceived + this.dataTransferred) / 
+			(totalContactTime != 0 ? totalAction : 1 );
 
-		// from DTNHost
-		getHost().dataInContact.add(dataContact);
-		getHost().congestionRatio.add(this.avgList(getHost().dataInContact));
-
-		List<Double> datas = this.dataInContact.get(getHost()) != null ? this.dataInContact.get(getHost())
-				: new ArrayList<Double>();
+		List<Double> datas = this.dataInContact.get(getHost()) != null 
+			? this.dataInContact.get(getHost())
+			: new ArrayList<Double>();
 		datas.add(dataContact);
 
-		this.dataInContact.put(getHost(), datas);
+		List<Double> dataForCr = this.congestionRatio.get(getHost()) != null 
+			? this.congestionRatio.get(getHost())
+			: new ArrayList<Double>();
+		dataForCr.add(avgList(datas));
+		
 
-		// from DTNHost
-		// int lastCr = getHost().congestionRatio.size()-1;
-		// double oLast = getHost().congestionRatio.get(lastCr);
-		// this.countEma(oLast);
+		this.dataInContact.put(getHost(), datas);
+		this.congestionRatio.put(getHost(), dataForCr);
+
+		int lastCr = this.congestionRatio.get(getHost()).size()-1;
+		double oLast = this.congestionRatio.get(getHost()).get(lastCr);
+		this.countEma(oLast);
 
 		this.dataReceived = 0;
 		this.dataTransferred = 0;
@@ -251,13 +223,16 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 	}
 
 	public void countEma(double oLast) {
-		int emaPrev = getHost().ema.size() - 1; // last index dari ema
+		if(!this.ema.containsKey(getHost())) {
+			this.ema.put(getHost(), new ArrayList<Double>());
+		}
+		int emaPrev2 = this.ema.get(getHost()).size() - 1; // last index dari ema
 
-		double value = (getHost().ema.size() > 0)
-				? oLast * SMOOTHING_FACTOR + getHost().ema.get(emaPrev) * (1 - SMOOTHING_FACTOR)
+		double value2 = (this.ema.get(getHost()).size() > 0)
+				? oLast * SMOOTHING_FACTOR + this.ema.get(getHost()).get(emaPrev2) * (1 - SMOOTHING_FACTOR)
 				: oLast * SMOOTHING_FACTOR + 0 * (1 - SMOOTHING_FACTOR);
 
-		getHost().ema.add(value);
+		this.ema.get(getHost()).add(value2);
 	}
 
 	public void testingDummyReward(double r) {
@@ -273,17 +248,9 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 		testingDummyReward(1 / value);
 	}
 
-	// public List<Double> getDataInContact() {
-	// return this.dataInContact;
-	// }
-
-	// public List<Double> getCr() {
-	// 	return this.cr;
-	// }
-
 	@Override
 	public List<Double> getCRNode(DTNHost host) {
-		return this.dataInContact.get(host);
+		return this.congestionRatio.get(host);
 	}
 
 	@Override
@@ -291,12 +258,13 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 		return this.dataInContact.get(host);
 	}
 
+	@Override
+	public List<Double> getEmaOfCR(DTNHost host) {
+		return this.ema.get(host);
+	}
+
 	public QLearning getQl() {
 		return this.ql;
 	}
-
-	// public double tes()
-	// {
-	// return SimScenario.getInstance().getEndTime();
-	// }
+	
 }

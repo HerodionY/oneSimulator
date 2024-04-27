@@ -100,9 +100,13 @@ public class TestingReport extends Report {
 			// if(d.toString().equals("p0")) {
 			// 	tes.append(d + ", " + router.getQl().qvalues.length + "\n");
 			// }
-			tes.append(d + ", " + d.setofHosts.size() + "\n");
-			// tes.append(d + ", " + cr.getDataInContactNode(d).size() + "\n");
-			// tes.append(d + ", " + cr.getCRNode(d) + "\n");
+			// tes.append(d + ", " + d.setofHosts.size() + "\n");
+			// tes.append(d + ", " + cr.getDataInContactNode(d) + "\n");
+			// tes.append(d + ", " + cr.getCRNode(d).size() + "\n");
+			tes.append(d + ", " + cr.getEmaOfCR(d) + "\n");
+			// tes.append(d + ", " + cr.getCRNode(d).size() + " " + cr.getDataInContactNode(d).size() +"\n");
+			// tes.append(d + ", " + d.congestionRatio + "\n");
+			// tes.append(d + ", " + d.ema + "\n");
 			// tes.append(d + ", " + d.dummyForReward + "\n");
 			// if (d.toString().equals("p0")) {
 			// 	// Map<DTNHost, List<Duration>> dur = d.listDurPerNode;
