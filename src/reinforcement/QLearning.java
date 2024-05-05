@@ -46,7 +46,49 @@ public class QLearning{
     // discount factor
     private double discountFactor = 0.95;
     // learning rate
-    private double learningRate = 0.25;
+    // private double learningRate = 0.25;
+    private double learningRate = 0.0;
+
+    // tambahan
+    private int visitCount = 0;
+
+    /**
+     *  Initializes a new instance of the QLearning class.
+     * @param states Amount of possible states.
+     * @param actions Amount of possible actions.
+     * @param explorationPolicy Exploration policy.
+     * @param randomize Randomize action estimates or not.
+     */
+    public QLearning( int states, int actions, IExplorationPolicy explorationPolicy, boolean randomize ){
+        this.states  = states;
+        this.actions = actions;
+        this.explorationPolicy = explorationPolicy;
+
+        // create Q-array
+        qvalues = new double[states][];
+        for ( int i = 0; i < states; i++ ){
+            qvalues[i] = new double[actions];
+        }
+
+        // do randomization
+        if (randomize){
+            Random r = new Random();
+
+            for ( int i = 0; i < states; i++ ){
+                for ( int j = 0; j < actions; j++ ){
+                    qvalues[i][j] = r.nextDouble() / 10;
+                }
+            }
+        }
+    }
+    
+    public void setVisitCount(int visit) {
+        this.visitCount = visit;
+    }
+
+    public int getVisitCount() {
+        return this.visitCount;
+    }
 
     /**
      * Amount of possible states.
@@ -96,8 +138,11 @@ public class QLearning{
      * 
      * @param learningRate
      */
+    // public void setLearningRate(double learningRate) {
+    //     this.learningRate = Math.max(0.0, Math.min(1.0, learningRate));
+    // }
     public void setLearningRate(double learningRate) {
-        this.learningRate = Math.max(0.0, Math.min(1.0, learningRate));
+        this.learningRate = 1 / visitCount;
     }
 
     /**
@@ -120,36 +165,6 @@ public class QLearning{
      */
     public void setDiscountFactor(double discountFactor) {
         this.discountFactor = Math.max(0.0, Math.min(1.0, discountFactor ));
-    }
-    
-    /**
-     *  Initializes a new instance of the QLearning class.
-     * @param states Amount of possible states.
-     * @param actions Amount of possible actions.
-     * @param explorationPolicy Exploration policy.
-     * @param randomize Randomize action estimates or not.
-     */
-    public QLearning( int states, int actions, IExplorationPolicy explorationPolicy, boolean randomize ){
-        this.states  = states;
-        this.actions = actions;
-        this.explorationPolicy = explorationPolicy;
-
-        // create Q-array
-        qvalues = new double[states][];
-        for ( int i = 0; i < states; i++ ){
-            qvalues[i] = new double[actions];
-        }
-
-        // do randomization
-        if (randomize){
-            Random r = new Random();
-
-            for ( int i = 0; i < states; i++ ){
-                for ( int j = 0; j < actions; j++ ){
-                    qvalues[i][j] = r.nextDouble() / 10;
-                }
-            }
-        }
     }
     
     /**

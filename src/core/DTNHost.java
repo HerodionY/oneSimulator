@@ -35,22 +35,6 @@ public class DTNHost implements Comparable<DTNHost> {
     private List<MovementListener> movListeners;
     private List<NetworkInterface> net;
     private ModuleCommunicationBus comBus;
-
-    // tambahan testing
-    public List<Duration> intervals;
-    public List<Double> congestionRatio = new ArrayList<Double>();
-	public List<Double> dataInContact = new ArrayList<Double>();
-    public List<Double> ema = new ArrayList<Double>();
-    public List<Double> dummyForReward = new ArrayList<Double>();
-
-    public Map<Duration, Integer> dataReceivedInDuration;
-    public Map<Duration, Integer> dataTransferredInDuration;
-    public int msgReceived;
-    public int msgTransferred;
-    public Set<DTNHost> setofHosts;
-    public Map<DTNHost, Duration> durPerNode;
-    public Map<DTNHost, List<Duration>> listDurPerNode;
-    public double totalContactTime = 0;
         
     static {
         DTNSim.registerForReset(DTNHost.class.getCanonicalName());
@@ -105,18 +89,6 @@ public class DTNHost implements Comparable<DTNHost> {
                 l.initialLocation(this, this.location);
             }
         }
-
-        // tambahan
-        // this.setNode = new HashSet<DTNHost>();
-        this.intervals = new LinkedList<Duration>();
-        this.dataReceivedInDuration = new HashMap<Duration, Integer>();
-        this.msgReceived = 0;
-        this.msgTransferred = 0;
-        this.setofHosts = new HashSet<DTNHost>();
-        this.durPerNode = new HashMap<DTNHost, Duration>();
-        this.listDurPerNode = new HashMap<DTNHost, List<Duration>>();
-        // this.ema = new ArrayList<Double>();
-        // this.ema.add(0.0);
     }
 
     /**
@@ -561,27 +533,6 @@ public class DTNHost implements Comparable<DTNHost> {
      */
     public int compareTo(DTNHost h) {
         return this.getAddress() - h.getAddress();
-    }
-
-    /**
-     * Method tambahan untuk menambah Duration ke list
-     */
-    public void addDuration(Duration dur) {
-        this.intervals.add(dur);
-    }
-
-    /**
-     * Method tambahan untuk menambah Duration ke list
-     */
-    // public List<Duration> getNodeIntervals() {
-    public String getNodeIntervals() {
-        // return this.intervals;
-        StringBuilder cek = new StringBuilder("");
-        for (Duration d : intervals) {
-            // cek += "<" + d.start + ", " + d.end + "> ";
-            cek.append("<" + d.start + ", " + d.end + "> ");
-        }
-        return cek.toString();
     }
 
 }
