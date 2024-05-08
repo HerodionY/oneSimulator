@@ -93,21 +93,22 @@ public class TestingReport extends Report implements UpdateListener {
 				// 	crNode.put(host, tempLists);
 				// }
 
-				if(ema.containsKey(host)) {
-					ema.get(host).add(rtr.getEma());
-				} else {
-					List<Double> tempLists = new ArrayList<>();
-					tempLists.add(rtr.getEma());
-					ema.put(host, tempLists);
-				}
-
 				// if(ema.containsKey(host)) {
-				// 	ema.get(host).add(1/rtr.getEma());
+				// 	ema.get(host).add(rtr.getEma());
 				// } else {
 				// 	List<Double> tempLists = new ArrayList<>();
-				// 	tempLists.add(1/rtr.getEma());
+				// 	tempLists.add(rtr.getEma());
 				// 	ema.put(host, tempLists);
 				// }
+
+				double reward = rtr.getEma() != 0 ? 1/rtr.getEma() : 0;
+				if(ema.containsKey(host)) {
+					ema.get(host).add(reward);
+				} else {
+					List<Double> tempLists = new ArrayList<>();
+					tempLists.add(reward);
+					ema.put(host, tempLists);
+				}
 			}
 
 			lastUpdateTime = SimClock.getTime();
@@ -140,7 +141,7 @@ public class TestingReport extends Report implements UpdateListener {
 
 			ActiveRouter act = (ActiveRouter) d.getRouter();
 			CCRouting router = (CCRouting) act;
-			CongestionRate cr = (CongestionRate) router;
+			// CongestionRate cr = (CongestionRate) router;
 			// NodeConn in = (NodeConn) router;
 			// if(d.toString().equals("p18")) {
 			// CCRouting router = (CCRouting) d.getRouter();

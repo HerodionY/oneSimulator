@@ -4,7 +4,8 @@ import java.util.*;
 import core.*;
 import reinforcement.*;
 
-public class CCRouting extends ActiveRouter implements CongestionRate {
+public class CCRouting extends ActiveRouter {
+	// implements CongestionRate {
 	private int msgReceived = 0;
 	private int msgTransferred = 0;
 
@@ -32,7 +33,13 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 	 * jika status masih <CODE>pending</CODE> 
 	 * atau <CODE>true</CODE> maka tidak dikirim
 	 * */
-	private Map<Integer, Boolean> waitForReward;
+	private Map<DTNHost, Boolean> waitForReward;
+
+	/**
+	 * Candidate receivers
+	 */
+	// private List<DTNHost> candidateReceiver;
+	private List<Connection> candidateReceiver;
 
 	/** namespace settings ({@value}) */
 	private static final String CCRouting_NS = "CCRouting";
@@ -43,10 +50,6 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 	 * maka state diinisalisasi sejumlah dengan total node
 	 */
 	private static final String TOTAL_STATE = "totalState";
-	/** 
-	 * Total action didapat dari 
-	 * <CODE>(SimScenario.endTime / updateInterval)</CODE>
-	 * */
 	private static final String TOTAL_ACTION = "totalAction";
 
 	/**
@@ -61,6 +64,8 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 		totalState = ccSettings.getInt(TOTAL_STATE);
 		totalAction = ccSettings.getInt(TOTAL_ACTION);
 
+		waitForReward = new HashMap<>();
+		candidateReceiver = new ArrayList<>();
 		dataContact = new ArrayList<>();
 		listOfSumDataContact = new ArrayList<>();
 		initQL();
@@ -77,6 +82,8 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 		totalState = r.totalState;
 		totalAction = r.totalAction;
 
+		waitForReward = new HashMap<>();
+		candidateReceiver = new ArrayList<>();
 		dataContact = new ArrayList<>();
 		listOfSumDataContact = new ArrayList<>();
 		initQL();
@@ -90,10 +97,21 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 
 	@Override
 	public void changedConnection(Connection con) {
-		// DTNHost peer = con.getOtherNode(getHost());
+		DTNHost myHost = getHost();
+		DTNHost otherNode = con.getOtherNode(myHost);
+		CCRouting otherRouter = (CCRouting) otherNode.getRouter();
+		
 		if (con.isUp()) {
-			// getHost().setofHosts.add(con.getOtherNode(getHost()));
-			// tesIsReceiving = false;
+
+			if(!this.waitForReward.containsKey(otherNode)) {
+				this.waitForReward.put(otherNode, false);
+				this.candidateReceiver.add(con);
+			}
+
+			if(!this.waitForReward.get(otherNode).booleanValue()) {
+				this.candidateReceiver.add(con);	
+			} 
+
 		} else {
 			this.totalContactTime += SimClock.getTime();
 		}
@@ -130,6 +148,9 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 			// reset data receive & transmit dalam interval tertentu
 			this.dataReceived = 0;
 			this.dataTransferred = 0;
+
+			this.msgReceived = 0;
+			this.msgTransferred = 0;
 		}
 
 		if (isTransferring() || !canStartTransfer()) {
@@ -141,8 +162,44 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 			return; // started a transfer, don't try others (yet)
 		}
 
-		// then try any/all message to any/all connection
-		this.tryAllMessagesToAllConnections();
+		tryOtherMessage();
+	}
+
+	private Tuple<Message, Connection> tryOtherMessage() {
+		List<Tuple<Message, Connection>> messages = new ArrayList<>();
+
+		Collection<Message> msgCollection = getMessageCollection();
+
+		/**
+		 * collect message terhadap node yg memiliki
+		 * status available / tidak pending / waitForReward == false
+		 */
+		for (Connection con : this.candidateReceiver) {
+			DTNHost other = con.getOtherNode(getHost());
+			CCRouting othRouter = (CCRouting) other.getRouter();
+			
+			if (othRouter.isTransferring()) {
+				continue; // skip hosts that are transferring
+			}
+
+			for (Message m : msgCollection) {
+				if (othRouter.hasMessage(m.getId())) {
+					continue; // skip messages that the other one has
+				}
+
+        tryAllMessagesToAllConnections();
+
+				messages.add(new Tuple<>(m,con));
+			}			
+		}
+
+		if (messages.isEmpty()) {
+			return null;
+		}
+
+		// nanti sorting dulu sebelum kirim
+		// ...
+		return tryMessagesForConnected(messages);
 	}
 
 	@Override
@@ -175,7 +232,8 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 	}
 
 	public void countCongestionRatio() {
-		double dataEachContact = (this.dataReceived + this.dataTransferred) / totalContactTime;
+		// double dataEachContact = (this.dataReceived + this.dataTransferred) / totalContactTime;
+		double dataEachContact = (this.msgReceived + this.msgTransferred) / totalContactTime;
 
 		this.dataContact.add(dataEachContact);
 
@@ -217,23 +275,23 @@ public class CCRouting extends ActiveRouter implements CongestionRate {
 		this.exmova = tempEma;
 	}
 
-	@Override
-	public List<Double> getCRNode(DTNHost host) {
-		return new ArrayList<>();
-		// return this.congestionRatio.get(host);
-	}
+	// @Override
+	// public List<Double> getCRNode(DTNHost host) {
+	// 	return new ArrayList<>();
+	// 	// return this.congestionRatio.get(host);
+	// }
 
-	@Override
-	public List<Double> getDataInContactNode(DTNHost host) {
-		return new ArrayList<>();
-		// return this.dataInContact.get(host);
-	}
+	// @Override
+	// public List<Double> getDataInContactNode(DTNHost host) {
+	// 	return new ArrayList<>();
+	// 	// return this.dataInContact.get(host);
+	// }
 
-	@Override
-	public List<Double> getEmaOfCR(DTNHost host) {
-		return new ArrayList<>();
-		// return this.ema.get(host);
-	}
+	// @Override
+	// public List<Double> getEmaOfCR(DTNHost host) {
+	// 	return new ArrayList<>();
+	// 	// return this.ema.get(host);
+	// }
 
 	public QLearning getQl() {
 		return this.ql;
