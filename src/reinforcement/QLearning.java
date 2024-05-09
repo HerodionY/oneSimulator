@@ -44,13 +44,13 @@ public class QLearning{
     private IExplorationPolicy explorationPolicy;
 
     // discount factor
-    private double discountFactor = 0.95;
+    private double discountFactor = 0.0;
+    private double gamma1 = 100.0;
+    private double gamma2 = 0.01;
+
     // learning rate
     // private double learningRate = 0.25;
     private double learningRate = 0.0;
-
-    // tambahan
-    private int visitCount = 0;
 
     /**
      *  Initializes a new instance of the QLearning class.
@@ -80,14 +80,6 @@ public class QLearning{
                 }
             }
         }
-    }
-    
-    public void setVisitCount(int visit) {
-        this.visitCount = visit;
-    }
-
-    public int getVisitCount() {
-        return this.visitCount;
     }
 
     /**
@@ -138,10 +130,7 @@ public class QLearning{
      * 
      * @param learningRate
      */
-    // public void setLearningRate(double learningRate) {
-    //     this.learningRate = Math.max(0.0, Math.min(1.0, learningRate));
-    // }
-    public void setLearningRate(double learningRate) {
+    public void setLearningRate(double visitCount) {
         this.learningRate = 1 / visitCount;
     }
 
@@ -163,8 +152,10 @@ public class QLearning{
      * 
      * @param discountFactor
      */
-    public void setDiscountFactor(double discountFactor) {
-        this.discountFactor = Math.max(0.0, Math.min(1.0, discountFactor ));
+    public void setDiscountFactor(double totalReward) {
+        double pow = gamma2 / totalReward;
+
+        this.discountFactor = Math.pow(gamma1, pow);
     }
     
     /**
@@ -199,5 +190,9 @@ public class QLearning{
         // update expexted summary reward of the previous state
         previousActionEstimations[action] *= (1.0 - learningRate);
         previousActionEstimations[action] += (learningRate * (reward + discountFactor * maxNextExpectedReward));
+    }
+
+    public double getQV(int state, int action) {
+        return qvalues[state][action];
     }
 }

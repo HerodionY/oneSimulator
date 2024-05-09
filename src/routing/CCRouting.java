@@ -28,6 +28,10 @@ public class CCRouting extends ActiveRouter {
 	private IExplorationPolicy explorationPolicy;
 	private int totalState;
 	private int totalAction;
+	/** untuk menghitung discount factor */
+	private Map<DTNHost, Double> totalRewardWithNode;
+	private Map<DTNHost, Integer> visitCount;
+
 	/** 
 	 * Integer sebagai address node, 
 	 * jika status masih <CODE>pending</CODE> 
@@ -38,11 +42,10 @@ public class CCRouting extends ActiveRouter {
 	/**
 	 * Candidate receivers
 	 */
-	// private List<DTNHost> candidateReceiver;
 	private List<Connection> candidateReceiver;
 
 	/** namespace settings ({@value}) */
-	private static final String CCRouting_NS = "CCRouting";
+	private static final String CCROUTING_NS = "CCRouting";
 	/** nilai update interval atur di settings */
 	private static final String UPDATE_INTERVAL = "updateInterval";
 	/**
@@ -59,7 +62,7 @@ public class CCRouting extends ActiveRouter {
 	 */
 	public CCRouting(Settings s) {
 		super(s);
-		Settings ccSettings = new Settings(CCRouting_NS);
+		Settings ccSettings = new Settings(CCROUTING_NS);
 		updateInterval = ccSettings.getInt(UPDATE_INTERVAL);
 		totalState = ccSettings.getInt(TOTAL_STATE);
 		totalAction = ccSettings.getInt(TOTAL_ACTION);
@@ -93,6 +96,9 @@ public class CCRouting extends ActiveRouter {
 		this.explorationPolicy = new EpsilonGreedyExploration(0.989);
 
 		this.ql = new QLearning(totalState, totalAction, this.explorationPolicy, false);
+
+		this.totalRewardWithNode = new HashMap<>();
+		this.visitCount = new HashMap<>();
 	}
 
 	@Override
@@ -105,7 +111,6 @@ public class CCRouting extends ActiveRouter {
 
 			if(!this.waitForReward.containsKey(otherNode)) {
 				this.waitForReward.put(otherNode, false);
-				this.candidateReceiver.add(con);
 			}
 
 			if(!this.waitForReward.get(otherNode).booleanValue()) {
@@ -137,22 +142,6 @@ public class CCRouting extends ActiveRouter {
 	public void update() {
 		super.update();
 
-		if ((SimClock.getTime() - lastUpdateTime) >= updateInterval) {
-			countCongestionRatio(); // hitung CR
-			countEma(this.cr); // hitung EMA
-			// q learning
-			//
-
-			lastUpdateTime = SimClock.getTime();
-
-			// reset data receive & transmit dalam interval tertentu
-			this.dataReceived = 0;
-			this.dataTransferred = 0;
-
-			this.msgReceived = 0;
-			this.msgTransferred = 0;
-		}
-
 		if (isTransferring() || !canStartTransfer()) {
 			return; // transferring, don't try other connections yet
 		}
@@ -163,6 +152,48 @@ public class CCRouting extends ActiveRouter {
 		}
 
 		tryOtherMessage();
+
+		if ((SimClock.getTime() - lastUpdateTime) >= updateInterval) {
+			countCongestionRatio(); // hitung CR
+			countEma(this.cr); // hitung EMA
+
+			lastUpdateTime = SimClock.getTime();
+
+			// reset data receive & transmit dalam interval tertentu
+			this.dataReceived = 0;
+			this.dataTransferred = 0;
+
+			this.msgReceived = 0;
+			this.msgTransferred = 0;
+
+			// ubah status pending menjadi available (wait for reward => false)
+			for(Connection con : this.candidateReceiver) {
+				DTNHost other = con.getOtherNode(getHost());
+				int addressOther = other.getAddress();
+				this.waitForReward.put(con.getOtherNode(getHost()), false);
+
+				double reward = this.exmova != 0 ? this.exmova : 0;
+
+				int totalVisit = visitCount.get(other) != null
+					? visitCount.get(other) + 1
+					: 1;
+
+				double totalRewardForDiscFac = totalRewardWithNode.get(other) != null
+					? totalRewardWithNode.get(other) + reward
+					: reward;
+
+				this.visitCount.put(other, totalVisit);
+				this.totalRewardWithNode.put(other, totalRewardForDiscFac);																		
+				
+				// Q-Learning
+				int action = this.ql.GetAction(addressOther);
+				this.ql.setLearningRate(totalVisit);
+				this.ql.setDiscountFactor(totalRewardForDiscFac);
+				this.ql.UpdateState(addressOther, action, reward, action);
+			}
+
+			this.candidateReceiver.clear();
+		}
 	}
 
 	private Tuple<Message, Connection> tryOtherMessage() {
@@ -170,6 +201,9 @@ public class CCRouting extends ActiveRouter {
 
 		Collection<Message> msgCollection = getMessageCollection();
 
+		// order q-value paling tinggi
+		Collections.sort(this.candidateReceiver, new ConnectionComparator());
+		
 		/**
 		 * collect message terhadap node yg memiliki
 		 * status available / tidak pending / waitForReward == false
@@ -187,10 +221,10 @@ public class CCRouting extends ActiveRouter {
 					continue; // skip messages that the other one has
 				}
 
-        tryAllMessagesToAllConnections();
-
 				messages.add(new Tuple<>(m,con));
-			}			
+			}
+
+			this.waitForReward.put(other, true);
 		}
 
 		if (messages.isEmpty()) {
@@ -200,6 +234,24 @@ public class CCRouting extends ActiveRouter {
 		// nanti sorting dulu sebelum kirim
 		// ...
 		return tryMessagesForConnected(messages);
+	}
+
+	/**
+	 * Comparator untuk sorting Connection berdasarkan DTNHost
+	 * yang memiliki Q-value tertinggi
+	 * Sort DESC
+	 */
+	private class ConnectionComparator implements Comparator<Connection> {
+		public int compare(Connection con1, Connection con2) {
+			DTNHost h1 = con1.getOtherNode(getHost());
+			DTNHost h2 = con2.getOtherNode(getHost());
+
+			double qv1 = getQl().getQV(h1.getAddress(), h1.getAddress());
+			double qv2 = getQl().getQV(h2.getAddress(), h2.getAddress());
+
+			// Q-value lebih besar
+			return Double.compare(qv2, qv1);
+		}
 	}
 
 	@Override

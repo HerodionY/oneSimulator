@@ -63,8 +63,8 @@ Group.router = CCRouting
 # 900 => 15 menit
 CCRouting.updateInterval = 900
 # total state & action didapat dari jumlah keseluruhan node
-CCRouting.totalState = 40
-CCRouting.totalAction = 40
+CCRouting.totalState = 97
+CCRouting.totalAction = 97
 
 # Decision Engine Router
 #Group.router = DecisionEngineRouter
@@ -114,7 +114,7 @@ Events2.interval = 1160, 1240
 # 1160, 1240 (~ 3 texts/ hour) Haggle3 - Infocom5, Reality2
 # 2320, 2480 (~ 1 texts/ hour)
 
-Events2.size = 10k
+Events2.size = 500k
 # range of message source/destination addresses
 Events2.hosts = 0,96
 Events2.prefix = M
@@ -142,7 +142,7 @@ MapBasedMovement.mapFile4 = data/shops.wkt
 ## Reports - all report names have to be valid report classes
 
 # how many reports to load
-Report.nrofReports = 3
+Report.nrofReports = 2
 # length of the warm up period (simulated seconds)
 Report.warmup = 0
 # default directory of reports (can be overridden per Report with output setting)
@@ -150,7 +150,7 @@ Report.reportDir = reports/kevin/
 # Report classes to load
 Report.report1 = MessageStatsReport
 Report.report2 = TestingReport
-Report.report3 = ContactTimesReport
+#Report.report3 = ContactTimesReport
 
 ## Default settings for some routers settings
 ## QLCC.secondsInTimeUnit = 30
