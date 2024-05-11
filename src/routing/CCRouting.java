@@ -174,7 +174,7 @@ public class CCRouting extends QLearningRouter {
 				int addressOther = other.getAddress();
 				this.waitForReward.put(con.getOtherNode(getHost()), false);
 
-				double reward = this.exmova != 0 ? this.exmova : 0;
+				double reward = 1 / this.exmova;
 
 				int totalVisit = visitCount.get(other) != null
 					? visitCount.get(other) + 1
