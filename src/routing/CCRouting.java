@@ -4,7 +4,8 @@ import java.util.*;
 import core.*;
 import reinforcement.*;
 
-public class CCRouting extends ActiveRouter {
+// public class CCRouting extends ActiveRouter {
+public class CCRouting extends QLearningRouter {
 	// implements CongestionRate {
 	private int msgReceived = 0;
 	private int msgTransferred = 0;
@@ -103,9 +104,10 @@ public class CCRouting extends ActiveRouter {
 
 	@Override
 	public void changedConnection(Connection con) {
+		super.changedConnection(con);
+		
 		DTNHost myHost = getHost();
 		DTNHost otherNode = con.getOtherNode(myHost);
-		CCRouting otherRouter = (CCRouting) otherNode.getRouter();
 		
 		if (con.isUp()) {
 
@@ -196,8 +198,9 @@ public class CCRouting extends ActiveRouter {
 		}
 	}
 
-	private Tuple<Message, Connection> tryOtherMessage() {
+	private Tuple<Message, Connection>  tryOtherMessage() {
 		List<Tuple<Message, Connection>> messages = new ArrayList<>();
+		List<Tuple<Message, Connection>> tempMessages = new ArrayList<>();
 
 		Collection<Message> msgCollection = getMessageCollection();
 
@@ -221,8 +224,17 @@ public class CCRouting extends ActiveRouter {
 					continue; // skip messages that the other one has
 				}
 
-				messages.add(new Tuple<>(m,con));
+				// pesan yg memiliki interest sama dari node dimasukan ke list
+				if(isSameInterest(m, other)) {
+					tempMessages.add(new Tuple<>(m,con));
+				}
 			}
+
+			// order by interest similarity secara desc
+			Collections.sort(tempMessages, new InteresetSimilarityComparator());
+
+			messages.addAll(tempMessages);
+			tempMessages.clear();
 
 			this.waitForReward.put(other, true);
 		}
@@ -231,8 +243,6 @@ public class CCRouting extends ActiveRouter {
 			return null;
 		}
 
-		// nanti sorting dulu sebelum kirim
-		// ...
 		return tryMessagesForConnected(messages);
 	}
 
@@ -251,6 +261,23 @@ public class CCRouting extends ActiveRouter {
 
 			// Q-value lebih besar
 			return Double.compare(qv2, qv1);
+		}
+	}
+
+	/**
+	 * Comparator untuk sorting message berdasarkan
+	 * Interest Similarity tertinggi
+	 * Sort DESC
+	 */
+	private class InteresetSimilarityComparator implements Comparator<Tuple<Message, Connection>> {
+		public int compare(Tuple<Message, Connection> tuple1, Tuple<Message, Connection> tuple2) {
+			double d1 = sumList(countInterestSimilarity(tuple1.getKey(), 
+													tuple1.getValue().getOtherNode(getHost())));
+
+			double d2 = sumList(countInterestSimilarity(tuple2.getKey(), 
+													tuple2.getValue().getOtherNode(getHost())));
+
+			return Double.compare(d2, d1);
 		}
 	}
 
@@ -296,6 +323,13 @@ public class CCRouting extends ActiveRouter {
 		this.cr = avgList(this.listOfSumDataContact);
 	}
 
+	public void countEma(double oLast) {
+		double emaPrev = this.exmova;
+		double tempEma = oLast * SMOOTHING_FACTOR + emaPrev * (1 - SMOOTHING_FACTOR);
+
+		this.exmova = tempEma;
+	}
+
 	private double sumList(List<Double> lists) {
 		double total = 0.0;
 
@@ -319,31 +353,6 @@ public class CCRouting extends ActiveRouter {
 
 		return value / lists.size();
 	}
-
-	public void countEma(double oLast) {
-		double emaPrev = this.exmova;
-		double tempEma = oLast * SMOOTHING_FACTOR + emaPrev * (1 - SMOOTHING_FACTOR);
-
-		this.exmova = tempEma;
-	}
-
-	// @Override
-	// public List<Double> getCRNode(DTNHost host) {
-	// 	return new ArrayList<>();
-	// 	// return this.congestionRatio.get(host);
-	// }
-
-	// @Override
-	// public List<Double> getDataInContactNode(DTNHost host) {
-	// 	return new ArrayList<>();
-	// 	// return this.dataInContact.get(host);
-	// }
-
-	// @Override
-	// public List<Double> getEmaOfCR(DTNHost host) {
-	// 	return new ArrayList<>();
-	// 	// return this.ema.get(host);
-	// }
 
 	public QLearning getQl() {
 		return this.ql;

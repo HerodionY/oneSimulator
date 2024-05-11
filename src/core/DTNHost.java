@@ -35,6 +35,10 @@ public class DTNHost implements Comparable<DTNHost> {
     private List<MovementListener> movListeners;
     private List<NetworkInterface> net;
     private ModuleCommunicationBus comBus;
+
+    // tambahan
+	private List<Double> socialProfile;
+	private List<Boolean> socialProfileOI;
         
     static {
         DTNSim.registerForReset(DTNHost.class.getCanonicalName());
@@ -62,6 +66,24 @@ public class DTNHost implements Comparable<DTNHost> {
         this.address = getNextAddress();
         this.name = groupId + address;
         this.net = new ArrayList<NetworkInterface>();
+
+        // tambahan
+        this.socialProfile = new ArrayList<Double>();
+		this.socialProfileOI = new ArrayList<Boolean>();
+
+        int index = 0;
+		while (index < 5) {
+			if (Math.random() < 0.5) {
+				socialProfile.add(0.5);
+				socialProfileOI.add(true);
+				// System.out.println("Own Interest " + gid + j);
+			} else {
+				socialProfile.add(0.0);
+				socialProfileOI.add(false);
+				// System.out.println("Transient Interest " + gid + j);
+			}
+			index++;
+		}
 
         for (NetworkInterface i : interf) {
             NetworkInterface ni = i.replicate();
@@ -535,4 +557,15 @@ public class DTNHost implements Comparable<DTNHost> {
         return this.getAddress() - h.getAddress();
     }
 
+    public List<Double> getSocialProfile() {
+		return socialProfile;
+	}
+
+	public void setSocialProfile(List<Double> socialProfile) {
+		this.socialProfile = socialProfile;
+	}
+
+    public List<Boolean> getSocialProfileOI() {
+		return socialProfileOI;
+	}
 }
