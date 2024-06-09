@@ -22,7 +22,7 @@ public class CCRouting extends QLearningRouter {
 	private List<Double> listOfSumDataContact;
 	private static final double SMOOTHING_FACTOR = 0.20;
 	private double cr = 0.0;
-	private double exmova = 0.0;
+	private double ema = 0.0;
 
 	// Variable untuk learning
 	private QLearning ql;
@@ -156,8 +156,6 @@ public class CCRouting extends QLearningRouter {
 		tryOtherMessage();
 
 		if ((SimClock.getTime() - lastUpdateTime) >= updateInterval) {
-			countCongestionRatio(); // hitung CR
-			countEma(this.cr); // hitung EMA
 
 			lastUpdateTime = SimClock.getTime();
 
@@ -171,10 +169,14 @@ public class CCRouting extends QLearningRouter {
 			// ubah status pending menjadi available (wait for reward => false)
 			for(Connection con : this.candidateReceiver) {
 				DTNHost other = con.getOtherNode(getHost());
-				int addressOther = other.getAddress();
-				this.waitForReward.put(con.getOtherNode(getHost()), false);
+				CCRouting othRouter = (CCRouting) other.getRouter();
 
-				double reward = 1 / this.exmova;
+				int addressOther = other.getAddress();
+				this.waitForReward.put(other, false);
+
+				othRouter.countCongestionRatio(); // hitung CR
+				othRouter.countEma(othRouter.cr); // hitung EMA
+				double reward = 1 / othRouter.ema;
 
 				int totalVisit = visitCount.get(other) != null
 					? visitCount.get(other) + 1
@@ -307,7 +309,7 @@ public class CCRouting extends QLearningRouter {
 	}
 
 	public double getEma() {
-		return this.exmova;
+		return this.ema;
 	}
 
 	public void countCongestionRatio() {
@@ -324,10 +326,10 @@ public class CCRouting extends QLearningRouter {
 	}
 
 	public void countEma(double oLast) {
-		double emaPrev = this.exmova;
+		double emaPrev = this.ema;
 		double tempEma = oLast * SMOOTHING_FACTOR + emaPrev * (1 - SMOOTHING_FACTOR);
 
-		this.exmova = tempEma;
+		this.ema = tempEma;
 	}
 
 	private double sumList(List<Double> lists) {

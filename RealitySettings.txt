@@ -1,11 +1,13 @@
 
 ## Scenario settings
 #Scenario.name = Reality-VarianceBuffer
-Scenario.name = Reality-MeanBuffer
+#Scenario.name = Reality-MeanBuffer
+#Scenario.name = Reality-Interest2
+Scenario.name = Reality-CCInterest2
 Scenario.simulateConnections = false
 Scenario.updateInterval = 1
 # 43200s == 12h
-Scenario.endTime = 8490908
+Scenario.endTime = 1698181
 
 # 16981816 Reality 8490908
 # 274883 Haggle 3 Infocom 5
@@ -22,14 +24,22 @@ Scenario.nrofHostGroups = 1
 
 # Router
 Group.movementModel = StationaryMovement
-#Group.router = EpidemicRouter
-Group.router = DecisionEngineRouter
+Group.router = CCRouting
+#Group.router = QLearningRouter
+#Group.router = DecisionEngineRouter
 #ProphetRouter.secondsInTimeUnit = 30
 #DecisionEngineRouter.decisionEngine = EpidemicDecisionRouter
-DecisionEngineRouter.decisionEngine = fuzzy.FuzzyBasedRouter
-DecisionEngineRouter.fclSimilarity = fcl/Reality.fcl
+#DecisionEngineRouter.decisionEngine = fuzzy.FuzzyBasedRouter
+#DecisionEngineRouter.fclSimilarity = fcl/Reality.fcl
 
-Group.bufferSize = 30M
+## Settings CCRouting
+# 900 => 15 menit
+CCRouting.updateInterval = 900
+# total state & action didapat dari jumlah keseluruhan node
+CCRouting.totalState = 250
+CCRouting.totalAction = 250
+
+Group.bufferSize = 20M
 # 10M Haggle3 - Infocom5
 # 20M Reality
 
@@ -50,7 +60,7 @@ Group1.groupID = P
 #Group1.waitTime = 0, 43800
 # Haggle3-Infocom5 43800
 
-Group1.nrofHosts = 97
+Group1.nrofHosts = 250
 Group1.nodeLocation = 1, 1
 
 ## Message creation parameters 
@@ -67,7 +77,7 @@ Events1.filePath = RealityConnectionTraceFinal.txt
 Events2.class = MessageEventGenerator
 # change interval to have more or less messages, see javadocs for more information.
 
-Events2.interval = 1160, 1240
+Events2.interval = 290, 310
 
 # 25,30 (~120 texts/hour)
 # 290, 310 (~12 texts/hour) Reality1
@@ -75,9 +85,9 @@ Events2.interval = 1160, 1240
 # 1160, 1240 (~ 3 texts/ hour) Haggle3 - Infocom5, Reality2
 # 2320, 2480 (~ 1 texts/ hour)
 
-Events2.size = 20k
+Events2.size = 500k
 # range of message source/destination addresses
-Events2.hosts = 0,96
+Events2.hosts = 0,249
 Events2.prefix = M
 
 Events2.time = 0, 8470748
@@ -94,16 +104,19 @@ MovementModel.worldSize = 100, 100
 #MovementModel.warmup = 1000
 
 # how many reports to load
-Report.nrofReports = 1
+Report.nrofReports = 2
 # length of the warm up period (simulated seconds)
 Report.warmup = 1
 # default directory of reports (can be overridden per Report with output setting)
 #Report.reportDir = reports/FuzzyFix/Reality
 #Report.reportDir = reports/FuzzyDataSet/Reality/SimilarityDataSet
 #Report.reportDir = reports/FuzzyDataSet/Reality/VarianceBufferDataSet
-Report.reportDir = reports/FuzzyDataSet/Reality/BufferOccDataSet
+#Report.reportDir = reports/FuzzyDataSet/Reality/BufferOccDataSet
+Report.reportDir = reports/Reality/Interest
 # Report classes to load
-Report.report1 = ClosenessNodeTiapWaktuReport
+Report.report1 = MessageStatsReport
+Report.report2 = InterestReport
+#Report.report1 = ClosenessNodeTiapWaktuReport
 #Report.report1 = ResourceNodeTiapWaktuReport
 #Report.report1 = MessageDeliveredPerContactReport
 #Report.report2 = NumberOfHopsPerMsgPerTimeReport

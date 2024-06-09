@@ -150,10 +150,11 @@ public class QLearningRouter extends ActiveRouter {
 
 			int i = 0;
 			boolean exist = false;
-			double decay = 0.2;
+			double decay = 0.9;
 			double disconnectionTime = 0;
 
-			if (connHistory.containsKey(from)) {
+			if (connHistory.containsKey(from) && !connHistory.get(from).isEmpty()) {
+			// if (connHistory.containsKey(from)) {
 				int conSize = connHistory.get(from).size();
 				double end = connHistory.get(from).get(conSize - 1).end;
 				disconnectionTime = curTime - end;

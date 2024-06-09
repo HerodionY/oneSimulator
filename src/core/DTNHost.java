@@ -85,6 +85,11 @@ public class DTNHost implements Comparable<DTNHost> {
 			index++;
 		}
 
+        if(!socialProfileOI.contains(true)){
+			socialProfile.set(0, 0.5);
+			socialProfileOI.set(0, true);
+		}
+
         for (NetworkInterface i : interf) {
             NetworkInterface ni = i.replicate();
             ni.setHost(this);
