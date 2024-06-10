@@ -24,7 +24,12 @@
 
 package reinforcement;
 
+import java.util.Map;
 import java.util.Random;
+
+import core.DTNHost;
+import core.Tuple;
+import routing.CCRouting;
 
 /**
  * The class provides implementation of Q-Learning algorithm, known as
@@ -174,7 +179,7 @@ public class QLearning{
      * @param reward Reward value, received by taking specified action from previous state.
      * @param nextState Next state.
      */
-    public void UpdateState( int previousState, int action, double reward, int nextState ){
+    public void UpdateState( int previousState, int action, double reward, int nextState, CCRouting router, DTNHost pendingHost ){
         // next state's action estimations
         double[] nextActionEstimations = qvalues[nextState];
                     // find maximum expected summary reward from the next state
@@ -190,6 +195,13 @@ public class QLearning{
         // update expexted summary reward of the previous state
         previousActionEstimations[action] *= (1.0 - learningRate);
         previousActionEstimations[action] += (learningRate * (reward + discountFactor * maxNextExpectedReward));
+
+        // reset data receive & transmit => 0
+        // router.setDataReceiveTransmit(0);
+        
+        Map<Integer, Tuple<DTNHost, Boolean>> waitForReward = router.getMapWaitForReward();
+        // ubah status pending menjadi available (wait for reward => false)
+        waitForReward.put(previousState, new Tuple<>(pendingHost, false)); // set wait for reward false
     }
 
     public double getQV(int state, int action) {

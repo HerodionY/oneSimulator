@@ -6,14 +6,13 @@ import reinforcement.*;
 
 // public class CCRouting extends ActiveRouter {
 public class CCRouting extends QLearningRouter {
-	// implements CongestionRate {
-	private int msgReceived = 0;
-	private int msgTransferred = 0;
 
 	/** update interval diset dari settings */
 	private double updateInterval;
 
 	// Variable untuk Congestion Ratio
+	private int msgReceived = 0;
+	private int msgTransferred = 0;
 	private int dataReceived = 0;
 	private int dataTransferred = 0;
 	private double lastUpdateTime = 0;
@@ -38,7 +37,7 @@ public class CCRouting extends QLearningRouter {
 	 * jika status masih <CODE>pending</CODE> 
 	 * atau <CODE>true</CODE> maka tidak dikirim
 	 * */
-	private Map<DTNHost, Boolean> waitForReward;
+	private Map<Integer, Tuple<DTNHost, Boolean>> waitForReward;
 
 	/**
 	 * Candidate receivers
@@ -111,11 +110,11 @@ public class CCRouting extends QLearningRouter {
 		
 		if (con.isUp()) {
 
-			if(!this.waitForReward.containsKey(otherNode)) {
-				this.waitForReward.put(otherNode, false);
+			if(!this.waitForReward.containsKey(otherNode.getAddress())) {
+				this.waitForReward.put(otherNode.getAddress(), new Tuple<>(otherNode, false));
 			}
 
-			if(!this.waitForReward.get(otherNode).booleanValue()) {
+			if(!this.waitForReward.get(otherNode.getAddress()).getValue().booleanValue()) {
 				this.candidateReceiver.add(con);	
 			} 
 
@@ -159,44 +158,82 @@ public class CCRouting extends QLearningRouter {
 
 			lastUpdateTime = SimClock.getTime();
 
-			// reset data receive & transmit dalam interval tertentu
-			this.dataReceived = 0;
-			this.dataTransferred = 0;
+			for(Map.Entry<Integer,Tuple<DTNHost, Boolean>> entry: waitForReward.entrySet()) {
+				if(entry.getValue().getValue().booleanValue()) {
+					DTNHost other = entry.getValue().getKey();
+					CCRouting othRouter = (CCRouting) other.getRouter();
 
-			this.msgReceived = 0;
-			this.msgTransferred = 0;
+					// int addressOther = other.getAddress();
 
-			// ubah status pending menjadi available (wait for reward => false)
-			for(Connection con : this.candidateReceiver) {
-				DTNHost other = con.getOtherNode(getHost());
-				CCRouting othRouter = (CCRouting) other.getRouter();
+					othRouter.countCongestionRatio(); // hitung CR
+					othRouter.countEma(othRouter.cr); // hitung EMA
+					double reward = 1 / othRouter.ema;
 
-				int addressOther = other.getAddress();
-				this.waitForReward.put(other, false);
+					int totalVisit = visitCount.get(other) != null
+						? visitCount.get(other) + 1
+						: 1;
 
-				othRouter.countCongestionRatio(); // hitung CR
-				othRouter.countEma(othRouter.cr); // hitung EMA
-				double reward = 1 / othRouter.ema;
+					double totalRewardForDiscFac = totalRewardWithNode.get(other) != null
+						? totalRewardWithNode.get(other) + reward
+						: reward;
 
-				int totalVisit = visitCount.get(other) != null
-					? visitCount.get(other) + 1
-					: 1;
-
-				double totalRewardForDiscFac = totalRewardWithNode.get(other) != null
-					? totalRewardWithNode.get(other) + reward
-					: reward;
-
-				this.visitCount.put(other, totalVisit);
-				this.totalRewardWithNode.put(other, totalRewardForDiscFac);																		
+					this.visitCount.put(other, totalVisit);
+					this.totalRewardWithNode.put(other, totalRewardForDiscFac);	
 				
-				// Q-Learning
-				int action = this.ql.GetAction(addressOther);
-				this.ql.setLearningRate(totalVisit);
-				this.ql.setDiscountFactor(totalRewardForDiscFac);
-				this.ql.UpdateState(addressOther, action, reward, action);
+					// Q-Learning
+					int action = this.ql.GetAction(entry.getKey());
+					this.ql.setLearningRate(totalVisit);
+					this.ql.setDiscountFactor(totalRewardForDiscFac );
+					this.ql.UpdateState(entry.getKey(), action, reward, action, this, other);	
+
+					othRouter.dataReceived = 0;
+					othRouter.dataTransferred = 0;
+
+					othRouter.msgReceived = 0;
+					othRouter.msgTransferred = 0;
+					// update wait for reward
+					// this.waitForReward.put(addressOther, new Tuple<>(other, false));
+				}
 			}
 
-			this.candidateReceiver.clear();
+			// ubah status pending menjadi available (wait for reward => false)
+			// for(Connection con : this.candidateReceiver) {
+			// 	DTNHost other = con.getOtherNode(getHost());
+			// 	CCRouting othRouter = (CCRouting) other.getRouter();
+
+			// 	int addressOther = other.getAddress();
+			// 	this.waitForReward.put(addressOther, false);
+
+			// 	othRouter.countCongestionRatio(); // hitung CR
+			// 	othRouter.countEma(othRouter.cr); // hitung EMA
+			// 	double reward = 1 / othRouter.ema;
+
+			// 	int totalVisit = visitCount.get(other) != null
+			// 		? visitCount.get(other) + 1
+			// 		: 1;
+
+			// 	double totalRewardForDiscFac = totalRewardWithNode.get(other) != null
+			// 		? totalRewardWithNode.get(other) + reward
+			// 		: reward;
+
+			// 	this.visitCount.put(other, totalVisit);
+			// 	this.totalRewardWithNode.put(other, totalRewardForDiscFac);																		
+				
+			// 	// Q-Learning
+			// 	int action = this.ql.GetAction(addressOther);
+			// 	this.ql.setLearningRate(totalVisit);
+			// 	this.ql.setDiscountFactor(totalRewardForDiscFac);
+			// 	this.ql.UpdateState(addressOther, action, reward, action, this);
+
+			// 	// reset data receive & transmit dalam interval tertentu
+			// 	// othRouter.dataReceived = 0;
+			// 	// othRouter.dataTransferred = 0;
+
+			// 	// othRouter.msgReceived = 0;
+			// 	// othRouter.msgTransferred = 0;
+			// }
+
+			// this.candidateReceiver.clear();
 		}
 	}
 
@@ -238,8 +275,10 @@ public class CCRouting extends QLearningRouter {
 			messages.addAll(tempMessages);
 			tempMessages.clear();
 
-			this.waitForReward.put(other, true);
+			this.waitForReward.put(other.getAddress(), new Tuple<>(other, true));
 		}
+
+		this.candidateReceiver.clear();
 
 		if (messages.isEmpty()) {
 			return null;
@@ -358,6 +397,18 @@ public class CCRouting extends QLearningRouter {
 
 	public QLearning getQl() {
 		return this.ql;
+	}
+
+	public void setDataReceiveTransmit(int value) {
+		this.dataReceived = value;
+		this.dataTransferred = value;
+
+		this.msgReceived = value;
+		this.msgTransferred = value;
+	}
+
+	public Map<Integer, Tuple<DTNHost, Boolean>> getMapWaitForReward() {
+		return this.waitForReward;
 	}
 	
 }
