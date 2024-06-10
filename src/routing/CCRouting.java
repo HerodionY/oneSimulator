@@ -31,6 +31,8 @@ public class CCRouting extends QLearningRouter {
 	/** untuk menghitung discount factor */
 	private Map<DTNHost, Double> totalRewardWithNode;
 	private Map<DTNHost, Integer> visitCount;
+	private int newState = 0;
+	private int lastAction = 0;
 
 	/** 
 	 * Integer sebagai address node, 
@@ -108,6 +110,10 @@ public class CCRouting extends QLearningRouter {
 		DTNHost myHost = getHost();
 		DTNHost otherNode = con.getOtherNode(myHost);
 		
+		if(newState != otherNode.getAddress()) {
+			newState = otherNode.getAddress();
+		}
+
 		if (con.isUp()) {
 
 			if(!this.waitForReward.containsKey(otherNode.getAddress())) {
@@ -159,7 +165,7 @@ public class CCRouting extends QLearningRouter {
 			lastUpdateTime = SimClock.getTime();
 
 			for(Map.Entry<Integer,Tuple<DTNHost, Boolean>> entry: waitForReward.entrySet()) {
-				if(entry.getValue().getValue().booleanValue()) {
+				if(entry.getKey() == newState && entry.getValue().getValue().booleanValue()) {
 					DTNHost other = entry.getValue().getKey();
 					CCRouting othRouter = (CCRouting) other.getRouter();
 
@@ -181,10 +187,11 @@ public class CCRouting extends QLearningRouter {
 					this.totalRewardWithNode.put(other, totalRewardForDiscFac);	
 				
 					// Q-Learning
-					int action = this.ql.GetAction(entry.getKey());
+					lastAction = this.ql.GetAction(entry.getKey());
+					newState = lastAction;
 					this.ql.setLearningRate(totalVisit);
 					this.ql.setDiscountFactor(totalRewardForDiscFac );
-					this.ql.UpdateState(entry.getKey(), action, reward, action, this, other);	
+					this.ql.UpdateState(entry.getKey(), lastAction, reward, newState, this, other);	
 
 					othRouter.dataReceived = 0;
 					othRouter.dataTransferred = 0;
@@ -244,7 +251,7 @@ public class CCRouting extends QLearningRouter {
 		Collection<Message> msgCollection = getMessageCollection();
 
 		// order q-value paling tinggi
-		Collections.sort(this.candidateReceiver, new ConnectionComparator());
+		// Collections.sort(this.candidateReceiver, new ConnectionComparator());
 		
 		/**
 		 * collect message terhadap node yg memiliki
