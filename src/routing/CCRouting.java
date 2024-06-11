@@ -169,8 +169,6 @@ public class CCRouting extends QLearningRouter {
 					DTNHost other = entry.getValue().getKey();
 					CCRouting othRouter = (CCRouting) other.getRouter();
 
-					// int addressOther = other.getAddress();
-
 					othRouter.countCongestionRatio(); // hitung CR
 					othRouter.countEma(othRouter.cr); // hitung EMA
 					double reward = 1 / othRouter.ema;
@@ -188,59 +186,20 @@ public class CCRouting extends QLearningRouter {
 				
 					// Q-Learning
 					lastAction = this.ql.GetAction(entry.getKey());
-					newState = lastAction;
 					this.ql.setLearningRate(totalVisit);
 					this.ql.setDiscountFactor(totalRewardForDiscFac );
 					this.ql.UpdateState(entry.getKey(), lastAction, reward, newState, this, other);	
+					newState = lastAction;
 
 					othRouter.dataReceived = 0;
 					othRouter.dataTransferred = 0;
 
 					othRouter.msgReceived = 0;
 					othRouter.msgTransferred = 0;
-					// update wait for reward
-					// this.waitForReward.put(addressOther, new Tuple<>(other, false));
+				} else {
+					newState = entry.getKey() + 1;
 				}
 			}
-
-			// ubah status pending menjadi available (wait for reward => false)
-			// for(Connection con : this.candidateReceiver) {
-			// 	DTNHost other = con.getOtherNode(getHost());
-			// 	CCRouting othRouter = (CCRouting) other.getRouter();
-
-			// 	int addressOther = other.getAddress();
-			// 	this.waitForReward.put(addressOther, false);
-
-			// 	othRouter.countCongestionRatio(); // hitung CR
-			// 	othRouter.countEma(othRouter.cr); // hitung EMA
-			// 	double reward = 1 / othRouter.ema;
-
-			// 	int totalVisit = visitCount.get(other) != null
-			// 		? visitCount.get(other) + 1
-			// 		: 1;
-
-			// 	double totalRewardForDiscFac = totalRewardWithNode.get(other) != null
-			// 		? totalRewardWithNode.get(other) + reward
-			// 		: reward;
-
-			// 	this.visitCount.put(other, totalVisit);
-			// 	this.totalRewardWithNode.put(other, totalRewardForDiscFac);																		
-				
-			// 	// Q-Learning
-			// 	int action = this.ql.GetAction(addressOther);
-			// 	this.ql.setLearningRate(totalVisit);
-			// 	this.ql.setDiscountFactor(totalRewardForDiscFac);
-			// 	this.ql.UpdateState(addressOther, action, reward, action, this);
-
-			// 	// reset data receive & transmit dalam interval tertentu
-			// 	// othRouter.dataReceived = 0;
-			// 	// othRouter.dataTransferred = 0;
-
-			// 	// othRouter.msgReceived = 0;
-			// 	// othRouter.msgTransferred = 0;
-			// }
-
-			// this.candidateReceiver.clear();
 		}
 	}
 
@@ -249,9 +208,6 @@ public class CCRouting extends QLearningRouter {
 		List<Tuple<Message, Connection>> tempMessages = new ArrayList<>();
 
 		Collection<Message> msgCollection = getMessageCollection();
-
-		// order q-value paling tinggi
-		// Collections.sort(this.candidateReceiver, new ConnectionComparator());
 		
 		/**
 		 * collect message terhadap node yg memiliki
@@ -292,24 +248,6 @@ public class CCRouting extends QLearningRouter {
 		}
 
 		return tryMessagesForConnected(messages);
-	}
-
-	/**
-	 * Comparator untuk sorting Connection berdasarkan DTNHost
-	 * yang memiliki Q-value tertinggi
-	 * Sort DESC
-	 */
-	private class ConnectionComparator implements Comparator<Connection> {
-		public int compare(Connection con1, Connection con2) {
-			DTNHost h1 = con1.getOtherNode(getHost());
-			DTNHost h2 = con2.getOtherNode(getHost());
-
-			double qv1 = getQl().getQV(h1.getAddress(), h1.getAddress());
-			double qv2 = getQl().getQV(h2.getAddress(), h2.getAddress());
-
-			// Q-value lebih besar
-			return Double.compare(qv2, qv1);
-		}
 	}
 
 	/**
