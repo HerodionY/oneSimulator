@@ -73,7 +73,7 @@ Group.speed = 0.8, 1.0
 # Message TTL of 300 minutes (5 hours)
 Group.msgTtl = 360
 
-Group.nrofHosts = 500
+Group.nrofHosts = 300
 
 # group1 (pedestrians) specific settings
 Group1.groupID = p
@@ -83,15 +83,15 @@ Group1.groupID = p
 # How many event generators
 Events.nrof = 1
 # Class of the first event generator
-Events1.class = MessageSuddenGenerator
-#Events1.class = MessageEventGenerator
+#Events1.class = MessageSuddenGenerator
+Events1.class = MessageEventGenerator
 # (following settings are specific for the MessageEventGenerator class)
 # Creation interval in seconds (one new message every 25 to 35 seconds)
-Events1.interval = 25, 35
+Events1.interval = 580, 620
 # Message sizes (500kB - 1MB)
 Events1.size = 500k
 # range of message source/destination addresses
-Events1.hosts = 0,499
+Events1.hosts = 0,299
 # Message ID prefix
 Events1.prefix = M
 

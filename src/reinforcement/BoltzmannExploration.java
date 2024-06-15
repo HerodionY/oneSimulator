@@ -40,7 +40,7 @@ import java.util.Random;
  * <b>t</b> is Temperature.
  * @author Diego Catalano
  */
-public class BoltzmannExploration implements IExplorationPolicy{
+public class BoltzmannExploration {
     double temperature;
     private Random r = new Random();
 
@@ -74,7 +74,7 @@ public class BoltzmannExploration implements IExplorationPolicy{
      * @param actionEstimates Action Estimates.
      * @return Return selected action.
      */
-    @Override
+    // @Override
     public int ChooseAction(double[] actionEstimates){
         // actions count
         int actionsCount = actionEstimates.length;

@@ -24,7 +24,11 @@
 
 package reinforcement;
 
+import java.util.Map;
 import java.util.Random;
+
+import core.DTNHost;
+import core.Tuple;
 
 /**
  * <para>The class implements epsilon greedy exploration policy. Acording to the policy,
@@ -77,7 +81,7 @@ public class EpsilonGreedyExploration implements IExplorationPolicy{
      * @return Return Selected actions.
      */
     @Override
-    public int ChooseAction(double[] actionEstimates){
+    public int ChooseAction(double[] actionEstimates, Map<Integer, Tuple<DTNHost, Boolean>> waitForReward){
         int actionsCount = actionEstimates.length;
 
         // find the best action (greedy)
@@ -86,10 +90,11 @@ public class EpsilonGreedyExploration implements IExplorationPolicy{
 
         for ( int i = 1; i < actionsCount; i++ )
         {
-            if ( actionEstimates[i] > maxReward )
-            {
-                maxReward = actionEstimates[i];
-                greedyAction = i;
+            if(waitForReward.get(i) != null) {
+                if(!waitForReward.get(i).getValue().booleanValue() && (actionEstimates[i] > maxReward)) {
+                    maxReward = actionEstimates[i];
+                    greedyAction = i;
+                }
             }
         }
 

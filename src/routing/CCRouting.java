@@ -32,7 +32,6 @@ public class CCRouting extends QLearningRouter {
 	private Map<DTNHost, Double> totalRewardWithNode;
 	private Map<DTNHost, Integer> visitCount;
 	private int newState = 0;
-	private int lastAction = 0;
 
 	/** 
 	 * Integer sebagai address node, 
@@ -109,10 +108,6 @@ public class CCRouting extends QLearningRouter {
 		
 		DTNHost myHost = getHost();
 		DTNHost otherNode = con.getOtherNode(myHost);
-		
-		if(newState != otherNode.getAddress()) {
-			newState = otherNode.getAddress();
-		}
 
 		if (con.isUp()) {
 
@@ -121,8 +116,8 @@ public class CCRouting extends QLearningRouter {
 			}
 
 			if(!this.waitForReward.get(otherNode.getAddress()).getValue().booleanValue()) {
-				this.candidateReceiver.add(con);	
-			} 
+				this.candidateReceiver.add(con);
+			}
 
 		} else {
 			this.totalContactTime += SimClock.getTime();
@@ -185,19 +180,16 @@ public class CCRouting extends QLearningRouter {
 					this.totalRewardWithNode.put(other, totalRewardForDiscFac);	
 				
 					// Q-Learning
-					lastAction = this.ql.GetAction(entry.getKey());
+					int action = this.ql.GetAction(entry.getKey(), waitForReward);
 					this.ql.setLearningRate(totalVisit);
 					this.ql.setDiscountFactor(totalRewardForDiscFac );
-					this.ql.UpdateState(entry.getKey(), lastAction, reward, newState, this, other);	
-					newState = lastAction;
+					this.ql.UpdateState(entry.getKey(), action, reward, newState, this, other);	
 
 					othRouter.dataReceived = 0;
 					othRouter.dataTransferred = 0;
 
 					othRouter.msgReceived = 0;
 					othRouter.msgTransferred = 0;
-				} else {
-					newState = entry.getKey() + 1;
 				}
 			}
 		}
@@ -213,35 +205,44 @@ public class CCRouting extends QLearningRouter {
 		 * collect message terhadap node yg memiliki
 		 * status available / tidak pending / waitForReward == false
 		 */
-		for (Connection con : this.candidateReceiver) {
+		Iterator<Connection> it = candidateReceiver.iterator();
+		while (it.hasNext()) {
+			Connection con = it.next();
 			DTNHost other = con.getOtherNode(getHost());
 			CCRouting othRouter = (CCRouting) other.getRouter();
+
+			newState = this.ql.GetAction(other.getAddress(), this.waitForReward);
 			
-			if (othRouter.isTransferring()) {
-				continue; // skip hosts that are transferring
-			}
-
-			for (Message m : msgCollection) {
-				if (othRouter.hasMessage(m.getId())) {
-					continue; // skip messages that the other one has
+			if(newState == other.getAddress()) {
+				if (othRouter.isTransferring()) {
+					continue; // skip hosts that are transferring
 				}
-
-				// pesan yg memiliki interest sama dari node dimasukan ke list
-				if(isSameInterest(m, other)) {
-					tempMessages.add(new Tuple<>(m,con));
+	
+				for (Message m : msgCollection) {
+					if (othRouter.hasMessage(m.getId())) {
+						continue; // skip messages that the other one has
+					}
+					
+					// pesan yg memiliki interest sama dari node dimasukan ke list
+					if(isSameInterest(m, other)) {
+						tempMessages.add(new Tuple<>(m,con));
+					}
 				}
-			}
-
-			// order by interest similarity secara desc
-			Collections.sort(tempMessages, new InteresetSimilarityComparator());
-
-			messages.addAll(tempMessages);
-			tempMessages.clear();
-
-			this.waitForReward.put(other.getAddress(), new Tuple<>(other, true));
+	
+					// order by interest similarity secara desc
+					Collections.sort(tempMessages, new InteresetSimilarityComparator());
+		
+					messages.addAll(tempMessages);
+					tempMessages.clear();
+		
+					this.waitForReward.put(other.getAddress(), new Tuple<>(other, true));
+	
+					it.remove();
+					it = candidateReceiver.iterator();
+				}
+				
 		}
 
-		this.candidateReceiver.clear();
 
 		if (messages.isEmpty()) {
 			return null;

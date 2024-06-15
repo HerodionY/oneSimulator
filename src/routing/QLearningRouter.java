@@ -30,7 +30,7 @@ public class QLearningRouter extends ActiveRouter {
 	// q-values
 	private double[][] qvalues;
 	// exploration policy
-	private IExplorationPolicy explorationPolicy;
+	private BoltzmannExploration explorationPolicy;
 
 	// discount factor
 	private double discountFactor = 1;

@@ -168,8 +168,8 @@ public class QLearning{
      * @param state Current state to get an action for.
      * @return Returns the action for the state.
      */
-    public int GetAction( int state ){
-        return explorationPolicy.ChooseAction( qvalues[state] );
+    public int GetAction( int state, Map<Integer, Tuple<DTNHost, Boolean>> waitForReward ){
+        return explorationPolicy.ChooseAction( qvalues[state], waitForReward );
     }
     
     /**
