@@ -3,8 +3,8 @@
 #
 
 ## Scenario settings
-Scenario.name = crowd-interest_scenario
-#Scenario.name = crowd-CCinterest_scenario
+#Scenario.name = crowd-interest_scenario
+Scenario.name = crowd-CCinterest_scenario
 Scenario.simulateConnections = true
 Scenario.updateInterval = 0.1
 # 43200s == 12h
@@ -53,8 +53,8 @@ Scenario.nrofHostGroups = 1
 
 # Common settings for all groups
 Group.movementModel = CrowdMovement
-Group.router = QLearningRouter
-#Group.router = CCRouting
+#Group.router = QLearningRouter
+Group.router = CCRouting
 
 ## Settings CCRouting
 # 900 => 15 menit

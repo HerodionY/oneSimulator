@@ -180,7 +180,7 @@ public class CCRouting extends QLearningRouter {
 					this.totalRewardWithNode.put(other, totalRewardForDiscFac);	
 				
 					// Q-Learning
-					int action = this.ql.GetAction(entry.getKey(), waitForReward);
+					int action = this.ql.GetAction(entry.getKey(), waitForReward, true);
 					this.ql.setLearningRate(totalVisit);
 					this.ql.setDiscountFactor(totalRewardForDiscFac );
 					this.ql.UpdateState(entry.getKey(), action, reward, newState, this, other);	
@@ -211,7 +211,7 @@ public class CCRouting extends QLearningRouter {
 			DTNHost other = con.getOtherNode(getHost());
 			CCRouting othRouter = (CCRouting) other.getRouter();
 
-			newState = this.ql.GetAction(other.getAddress(), this.waitForReward);
+			newState = this.ql.GetAction(other.getAddress(), this.waitForReward, false);
 			
 			if(newState == other.getAddress()) {
 				if (othRouter.isTransferring()) {

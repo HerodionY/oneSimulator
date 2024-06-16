@@ -81,7 +81,7 @@ public class EpsilonGreedyExploration implements IExplorationPolicy{
      * @return Return Selected actions.
      */
     @Override
-    public int ChooseAction(double[] actionEstimates, Map<Integer, Tuple<DTNHost, Boolean>> waitForReward){
+    public int ChooseAction(double[] actionEstimates, Map<Integer, Tuple<DTNHost, Boolean>> waitForReward, boolean isWaitingReward){
         int actionsCount = actionEstimates.length;
 
         // find the best action (greedy)
@@ -91,7 +91,7 @@ public class EpsilonGreedyExploration implements IExplorationPolicy{
         for ( int i = 1; i < actionsCount; i++ )
         {
             if(waitForReward.get(i) != null) {
-                if(!waitForReward.get(i).getValue().booleanValue() && (actionEstimates[i] > maxReward)) {
+                if(waitForReward.get(i).getValue().booleanValue() == isWaitingReward && (actionEstimates[i] > maxReward)) {
                     maxReward = actionEstimates[i];
                     greedyAction = i;
                 }

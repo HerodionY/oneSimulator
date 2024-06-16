@@ -44,5 +44,5 @@ public interface IExplorationPolicy {
      * @param actionEstimates Action estimates.
      * @return Returns selected action.
      */
-    public int ChooseAction(double[] actionEstimates, Map<Integer, Tuple<DTNHost, Boolean>> waitForReward);
+    public int ChooseAction(double[] actionEstimates, Map<Integer, Tuple<DTNHost, Boolean>> waitForReward, boolean isWaitingReward);
 }
