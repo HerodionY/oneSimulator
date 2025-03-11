@@ -425,4 +425,9 @@ abstract public class NetworkInterface implements ModuleCommunicationListener {
 			". Connections: " +	this.connections;
 	}
 
+	public int connectionCount()
+	{
+		return this.connections.size();
+	}
+
 }

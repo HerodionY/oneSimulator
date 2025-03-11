@@ -585,6 +585,24 @@ public abstract class ActiveRouter extends MessageRouter {
 			lastTtlCheck = SimClock.getTime();
 		}
 	}
+
+	protected Connection tryMessagesToAllConnections(List<Message> messages){
+		
+		if (getConnectionCount() == 0 || this.getNrofMessages() == 0) {
+			return null;
+		}
+
+		this.sortByQueueMode(messages);
+
+		for (Connection con : getConnections()) {
+			Message started = tryAllMessages(con, messages); 
+			if (started != null) { 
+				return con;
+			}
+		}
+		
+		return null;
+	}
 	
 	/**
 	 * Method is called just before a transfer is aborted at {@link #update()} 
@@ -601,5 +619,11 @@ public abstract class ActiveRouter extends MessageRouter {
 	 * @param con The connection whose transfer was finalized
 	 */
 	protected void transferDone(Connection con) { }
+
+	protected void ackMessage(Message m, DTNHost h) {}
+
+	protected int getConnectionCount() {
+		return getHost().getConnectionCount();
+	}
 	
 }

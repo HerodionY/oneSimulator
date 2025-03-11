@@ -573,4 +573,11 @@ public class DTNHost implements Comparable<DTNHost> {
     public List<Boolean> getSocialProfileOI() {
 		return socialProfileOI;
 	}
+    public int getConnectionCount() {
+		int sum = 0;
+		for (NetworkInterface i : net) {
+			sum += i.connectionCount();
+		}
+		return sum;
+	}
 }

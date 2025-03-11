@@ -119,9 +119,7 @@ public class NewMessageReport extends Report implements MessageListener, UpdateL
    public void updated(List<DTNHost> hosts) {
        double currentTime = SimClock.getTime();
         if (currentTime - this.lastRecord >= this.interval) {
-            this.deleteMessage.put(this.nrofDropped, this.nrofRemoved);
-            this.nrofDropped = 0;
-            this.lastRecord = currentTime;
+           
         }
    }
 
