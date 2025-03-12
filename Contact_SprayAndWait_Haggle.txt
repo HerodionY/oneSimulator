@@ -3,7 +3,7 @@
 
 #Scenario information
 #Scenario.name = connection-Rank
-Scenario.name = SprayAndWaitDecision
+Scenario.name = SprayAndFocusDecisionEngine
 Scenario.simulateConnections = false
 Scenario.updateInterval = 1
 
@@ -41,17 +41,17 @@ Group.bufferSize = 20M
 #DecisionEngineRouter.centralityAlg = routing.community.SimpleWinCentrality
 
 #Group.router = DecisionEngineRouter
-#DecisionEngineRouter.decisionEngine = community.Centrality
+#DecisionEngineRouter.decisionEngine = community.RandomWalk
 
 Group.router = DecisionEngineRouter
-DecisionEngineRouter.decisionEngine = SnWDecisionEngineRouting
+DecisionEngineRouter.decisionEngine = SprayAndFocusDecisionEngine
+
+#Group.router = SprayAndFocusDecisionEngine
+#DecisionEngineRouter.decisionEngine = community.BubbleRap
 #DecisionEngineRouter.communityDetectAlg = routing.community.KCliqueCommunityDetection
 #DecisionEngineRouter.K = 5
 #ecisionEngineRouter.familiarThreshold = 700
 #DecisionEngineRouter.centralityAlg = routing.community.CWindowCentrality
-
-SnWDecisionEngine.nrofCopies = 10
-SnWDecisionEngine.binaryMode = true
 
 
 
@@ -113,7 +113,7 @@ MovementModel.rngSeed = [2; 8372; 98092; 18293; 777]
 #ReportsInformations
 Report.nrofReports = 1
 
-Report.reportDir = reports/ActiveDecision/
+Report.reportDir = reports/Contact/Huggle
 
 
 #Report.reportDir = reports/RealRANK
@@ -123,10 +123,13 @@ Report.reportDir = reports/ActiveDecision/
 #Report.report1 = UniqueEncountersReport
 #Report.report2 = TotalEncountersReport
 #Report.report1 = DeliveryCentralityReport
-Report.report1 = ReportMessageContact
+Report.report1 = ReportContactIntervalTime
 #Report.report3 = BufferOccupancyReport
 #Report.report4 = BufferOccupancyEWMAReport
 #Report.report1 = DegreeCentralityReport
 #Report.report8 = CommunityDetectionReport
 
 ProphetRouter.secondsInTimeUnit = 30
+
+SprayAndFocusRouter.nrofCopies = 10
+SprayAndFocusRouter.binaryMode = true
