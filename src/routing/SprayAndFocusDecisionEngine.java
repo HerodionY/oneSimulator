@@ -21,8 +21,8 @@ public class SprayAndFocusDecisionEngine implements RoutingDecisionEngine {
 	/** Message property key for summary vector messages exchanged between direct peers */
 	public static final String SUMMARY_XCHG_PROP = "SprayAndFocus.protoXchg";
 	
-	protected static final String SUMMARY_XCHG_IDPREFIX = "summary";
-	protected static final double defaultTransitivityThreshold = 60.0;
+	protected static final String SUMMARY_XCHG_IDPREFIX = "summary";//"SprayAndFocusSummary";
+	protected static final double defaultTransitivityThreshold = 60.0;//300.0;
 	protected static final double DEFAULT_TIMEDIFF = 300;
 	protected static int protocolMsgIdx = 0;
 	
@@ -33,7 +33,7 @@ public class SprayAndFocusDecisionEngine implements RoutingDecisionEngine {
 	protected Map<DTNHost, Double> recentEncounters;
 	
 	public SprayAndFocusDecisionEngine(Settings s)
-	{
+	{	// Implement the method logic here
 		Settings snf = new Settings(SPRAYANDFOCUS_NS);
 		initialNrofCopies = snf.getInt(NROF_COPIES_S);
 		
@@ -51,20 +51,20 @@ public class SprayAndFocusDecisionEngine implements RoutingDecisionEngine {
 	 * @param r The router from which settings should be copied
 	 */
 	public SprayAndFocusDecisionEngine(SprayAndFocusDecisionEngine r)
-	{
-		this.initialNrofCopies = r.initialNrofCopies;
-		this.transitivityTimerThreshold = r.transitivityTimerThreshold;
+	{	// Implement the method logic here
+		this.initialNrofCopies = r.initialNrofCopies;//r.initialNrofCopies;
+		this.transitivityTimerThreshold = r.transitivityTimerThreshold;//r.transitivityTimerThreshold;
 		
-		recentEncounters = new HashMap<DTNHost, Double>();
+		recentEncounters = new HashMap<DTNHost, Double>();//r.recentEncounters;
 	}
 	
-	public RoutingDecisionEngine replicate()
+	public RoutingDecisionEngine replicate()//replicate: membuat salinan dari objek yang ada
 	{
 		return new SprayAndFocusDecisionEngine(this);
 	}
 	
 
-	public void connectionUp(DTNHost thisHost, DTNHost peer)
+	public void connectionUp(DTNHost thisHost, DTNHost peer)//
 	{
 		
 	}
@@ -129,45 +129,46 @@ public class SprayAndFocusDecisionEngine implements RoutingDecisionEngine {
 	// }
 
 	public void doExchangeForNewConnection(Connection con, DTNHost peer)
-	{
-		SprayAndFocusDecisionEngine Sf = this.getOtherSnFDecisionEngine(peer);
+	{	
+		// Implement the method logic here
+		SprayAndFocusDecisionEngine Sf = this.getOtherSnFDecisionEngine(peer);//getOtherSnFDecisionEngine(peer);
 		DTNHost thisHost = con.getOtherNode(peer);
 		double distTo = thisHost.getLocation().distance(peer.getLocation());
 		double speed = peer.getPath() == null ? 0 : peer.getPath().getSpeed(),peerSpeed = peer.getPath() == null ? 0 : peer.getPath().getSpeed(),
 			myTimediff, peerTimediff;
 		
 
-		if(speed == 0.0)
-			myTimediff = DEFAULT_TIMEDIFF;
+		if(speed == 0.0)//speed: kecepatan
+			myTimediff = DEFAULT_TIMEDIFF;//DEFAULT_TIMEDIFF: 300
 		else
-			myTimediff = distTo/speed;
+			myTimediff = distTo/speed;//distTo: jarak ke host lain
 		
 		if(peerSpeed == 0.0)
-			peerTimediff = DEFAULT_TIMEDIFF;
+			peerTimediff = DEFAULT_TIMEDIFF;//DEFAULT_TIMEDIFF: 300
 		else
-			peerTimediff = distTo/peerSpeed;
+			peerTimediff = distTo/peerSpeed;//distTo: jarak ke host lain
 
 		//do this when con is up and goes down (might have been up for awhile)
-		recentEncounters.put(peer, SimClock.getTime());
-		Sf.recentEncounters.put(thisHost, SimClock.getTime());
+		recentEncounters.put(peer, SimClock.getTime());//SimClock.getTime(): waktu simulasi
+		Sf.recentEncounters.put(thisHost, SimClock.getTime());//SimClock.getTime(): waktu simulasi
 
-
+		//combine both tables
 		Set<DTNHost> hosts = new HashSet<DTNHost>(this.recentEncounters.size() + Sf.recentEncounters.size());
-		hosts.addAll(this.recentEncounters.keySet());
-		hosts.addAll(recentEncounters.keySet());
+		hosts.addAll(this.recentEncounters.keySet());//recentEncounters
+		hosts.addAll(recentEncounters.keySet());//recentEncounters
 		
-
+		//update both tables
 		for(DTNHost h : hosts)
 		{
-			double myTime, peerTime;
-			if(recentEncounters.containsKey(h))
+			double myTime, peerTime;//myTime: waktu saya, peerTime: waktu peer
+			if(recentEncounters.containsKey(h))//recentEncounters: tabel waktu terakhir
 				myTime = recentEncounters.get(h);
 			else
-				myTime = 0.0;
+				myTime = 0.0;//
 
-
+			//update peer's table for host
 			if(Sf.recentEncounters.containsKey(h))
-			peerTime = Sf.recentEncounters.get(h);
+			peerTime = Sf.recentEncounters.get(h);//recentEncounters: tabel waktu terakhir
 			else
 			peerTime = 0.0;
 
@@ -188,21 +189,27 @@ public class SprayAndFocusDecisionEngine implements RoutingDecisionEngine {
 
 	public boolean isFinalDest(Message m, DTNHost host)
 	{
-		Integer nrofCopies = (Integer)m.getProperty(MSG_COUNT_PROP);
-		nrofCopies = (int)Math.ceil(nrofCopies/2.0);
-		m.updateProperty(MSG_COUNT_PROP, nrofCopies);
-		return m.getTo() == host;
+		// Implement the method logic here
+		Integer nrofCopies = (Integer)m.getProperty(MSG_COUNT_PROP);//MSG_COUNT_PROP: SprayAndFocus.copies
+		nrofCopies = (int)Math.ceil(nrofCopies/2.0);//ceil: pembulatan ke atas
+		m.updateProperty(MSG_COUNT_PROP, nrofCopies);//MSG_COUNT_PROP: SprayAndFocus.copies
+		return m.getTo() == host;//getTo(): mendapatkan tujuan pesan
 	}
 
 	public boolean newMessage(Message m)
 	{
-		m.addProperty(MSG_COUNT_PROP, new Integer(initialNrofCopies));
+		// Implement the method logic here
+		//makeRoomForNewMessage(m.getSize());
+		m.addProperty(MSG_COUNT_PROP, new Integer(initialNrofCopies));//MSG_COUNT_PROP: SprayAndFocus.copies
+		//addToMessages(m, true);
 		return true;
 	}
 
+	// @Override
+	// public boolean createNewMessage(Message m)
 	public boolean shouldDeleteOldMessage(Message m, DTNHost thisReportOld)
 	{
-		return m.getTo() == thisReportOld;
+		return m.getTo() == thisReportOld;//getTo(): mendapatkan tujuan pesan
 	}
 
 	@Override
@@ -210,12 +217,12 @@ public class SprayAndFocusDecisionEngine implements RoutingDecisionEngine {
 		// Implement the method logic here
 		int nrofCopies;
 		
-		nrofCopies = (Integer)m.getProperty(MSG_COUNT_PROP);
-		
+		nrofCopies = (Integer)m.getProperty(MSG_COUNT_PROP);//MSG_COUNT_PROP: SprayAndFocus.copies
+		//seperates the message into two copies if the number of copies is greater than 1
 		if(nrofCopies > 1)
 			nrofCopies /= 2;
 		else
-			return true;
+			return true;//return true if the number of copies is 1
 
 		m.updateProperty(MSG_COUNT_PROP, nrofCopies);
 		
@@ -225,14 +232,16 @@ public class SprayAndFocusDecisionEngine implements RoutingDecisionEngine {
 
 	public boolean shouldDeleteOldMessage(Message m, DTNHost otherHost, DTNHost thisHost)
 	{
+		// Implement the method logic here
 		int nrofCopies = (Integer)m.getProperty(MSG_COUNT_PROP);
 
 		nrofCopies = (Integer)m.getProperty(MSG_COUNT_PROP);
 
+		//seperates the message into two copies if the number of copies is greater than 1
 		if(nrofCopies > 1)
 			nrofCopies /= 2;
 		else
-			return true;
+			return true;//return true if the number of copies is 1
 		
 		m.updateProperty(MSG_COUNT_PROP, nrofCopies);
 		return false;
@@ -240,27 +249,33 @@ public class SprayAndFocusDecisionEngine implements RoutingDecisionEngine {
 
 	public boolean shouldSaveReceivedMessage(Message m, DTNHost thisHost)
 	{
-		return m.getTo() != thisHost;
+		return m.getTo() != thisHost;//getTo(): mendapatkan tujuan pesan
 	}
 
 	public boolean shouldSendMessageToHost(Message m, DTNHost otherHost, DTNHost thisHost)
 	{
+		// Implement the method logic here
+		//return true if the message is to be sent to the other host
 		if(m.getTo() == otherHost)
 			return true;
 
+		//return true if the number of copies is greater than 1
 		int numberOfCopies = (Integer)m.getProperty(MSG_COUNT_PROP);
 		if(numberOfCopies > 1) return true;
 
+		//return true if the other host has a newer encounter time with the destination
 		DTNHost destination = m.getTo();
 
+		//get the other host's SprayAndFocusDecisionEngine
 		SprayAndFocusDecisionEngine de = this.getOtherSnFDecisionEngine(otherHost);
 
+		//return false if the other host has not encountered the destination
 		if(!de.recentEncounters.containsKey(destination))
 			return false;
-
+		//return true if the other host has a newer encounter time with the destination
 		if(!recentEncounters.containsKey(destination))
 			return true;
-
+		//return true if the other host has a newer encounter time with the destination
 		if(de.recentEncounters.get(destination) > this.recentEncounters.get(destination))
 			return true;
 			
@@ -506,11 +521,13 @@ public class SprayAndFocusDecisionEngine implements RoutingDecisionEngine {
 
 
 		private  SprayAndFocusDecisionEngine getOtherSnFDecisionEngine(DTNHost otherHost) {
-			MessageRouter otherRouter = otherHost.getRouter();
+			MessageRouter otherRouter = otherHost.getRouter();//getRouter(): mendapatkan router
+		//getRouter(): mendapatkan router
 			assert otherRouter instanceof DecisionEngineRouter : "This router only works " + 
-		" with other routers of same type";
+		" with other routers of same type";//memastikan bahwa router adalah DecisionEngineRouter
 		
-		return (SprayAndFocusDecisionEngine) ((DecisionEngineRouter)otherRouter).getDecisionEngine();
+		return (SprayAndFocusDecisionEngine) ((DecisionEngineRouter)otherRouter).getDecisionEngine();//getDecisionEngine(): mendapatkan engine keputusan
+		//getDecisionEngine(): mendapatkan engine keputusan
 
 		//assert: Ini adalah sebuah mekanisme untuk memastikan bahwa kondisi tertentu benar pada saat runtime. Jika kondisi yang diberikan setelah kata kunci assert bernilai false, maka program akan melemparkan sebuah pengecualian AssertionError dengan pesan yang diberikan.
 		// otherRouter instanceof DecisionEngineRouter: Ini memeriksa apakah objek otherRouter adalah instance dari kelas DecisionEngineRouter atau subclass-nya.

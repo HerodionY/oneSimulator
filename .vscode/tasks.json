@@ -8,7 +8,7 @@
     },
     {
       "label": "run_one",
-      "command": "./one.bat -b 1 Contact_SprayAndWait_Haggle.txt",
+      "command": "./one.bat -b 1 PeopleRank.txt",
       "type": "shell"
     },
     {

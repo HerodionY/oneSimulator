@@ -3,7 +3,7 @@
 
 #Scenario information
 #Scenario.name = connection-Rank
-Scenario.name = Prophet
+Scenario.name = PeopleRankRouting
 Scenario.simulateConnections = false
 Scenario.updateInterval = 1
 
@@ -43,7 +43,7 @@ Group.bufferSize = 20M
 #Group.router = DecisionEngineRouter
 #DecisionEngineRouter.decisionEngine = community.RandomWalk
 
-Group.router = ProphetRouter
+Group.router = PeopleRankRouting
 #DecisionEngineRouter.decisionEngine = community.BubbleRap
 #DecisionEngineRouter.communityDetectAlg = routing.community.KCliqueCommunityDetection
 #DecisionEngineRouter.K = 5
