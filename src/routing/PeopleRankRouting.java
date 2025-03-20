@@ -747,36 +747,130 @@ public class PeopleRankRouting implements RoutingDecisionEngine, NodeRanking {
 
 /*
 PeopleRankRouter
-PeopleRankRouter adalah sebuah komponen dalam sistem routing yang menggunakan algoritma PeopleRank untuk menentukan keputusan rute dalam jaringan. Algoritma PeopleRank didasarkan pada teori ranking atau penentuan pentingnya sebuah node (host) dalam jaringan dengan 
-mempertimbangkan koneksi sosial antar node. Dalam konteks ini, setiap node diberi nilai yang mencerminkan pentingnya atau pengaruhnya dalam jaringan, dengan nilai yang lebih tinggi menunjukkan node yang lebih penting.
+PeopleRankRouter adalah sebuah komponen dalam sistem routing yang menggunakan algoritma PeopleRank untuk menentukan keputusan 
+rute dalam jaringan. Algoritma PeopleRank didasarkan pada teori ranking atau penentuan pentingnya sebuah node (host) dalam 
+jaringan dengan mempertimbangkan koneksi sosial antar node. Dalam konteks ini, setiap node diberi nilai yang mencerminkan 
+pentingnya atau pengaruhnya dalam jaringan, dengan nilai yang lebih tinggi menunjukkan node yang lebih penting.
 
 Fitur Utama:
 
 Penghitungan PeopleRank:
 
-PeopleRankRouter menghitung nilai PeopleRank setiap node dengan menggunakan algoritma iteratif yang mempertimbangkan pengaruh dari node tetangga. Setiap node dihitung berdasarkan nilai PeopleRank tetangganya dan jumlah teman atau koneksi yang dimilikinya.
+PeopleRankRouter menghitung nilai PeopleRank setiap node dengan menggunakan algoritma iteratif yang mempertimbangkan pengaruh dari
+node tetangga. Setiap node dihitung berdasarkan nilai PeopleRank tetangganya dan jumlah teman atau koneksi yang dimilikinya.
 Routing Berdasarkan PeopleRank:
 
-Menggunakan nilai PeopleRank yang dihitung, PeopleRankRouter membuat keputusan rute untuk pesan yang diterima, dengan lebih memilih untuk mengirim pesan ke node yang memiliki PeopleRank lebih tinggi. Hal ini diharapkan dapat meningkatkan efisiensi pengiriman pesan dalam 
-jaringan yang dinamis dan terputus-putus, seperti dalam jaringan Delay Tolerant Networks (DTNs) atau Mobile Ad Hoc Networks (MANETs).
-Pembaruan Riwayat Koneksi:
+Menggunakan nilai PeopleRank yang dihitung, PeopleRankRouter membuat keputusan rute untuk pesan yang diterima, dengan lebih 
+memilih untuk mengirim pesan ke node yang memiliki PeopleRank lebih tinggi. Hal ini diharapkan dapat meningkatkan efisiensi 
+pengiriman pesan dalam jaringan yang dinamis dan terputus-putus, seperti dalam jaringan Delay Tolerant Networks (DTNs) atau 
+Mobile Ad Hoc Networks (MANETs).Pembaruan Riwayat Koneksi:
 
-PeopleRankRouter juga menyimpan riwayat koneksi antar node. Setiap kali koneksi terputus, informasi durasi koneksi antara node dicatat dan digunakan untuk memperbarui nilai PeopleRank.
-Fleksibilitas dalam Pengaturan Parameter:
+PeopleRankRouter juga menyimpan riwayat koneksi antar node. Setiap kali koneksi terputus, informasi durasi koneksi antara node 
+dicatat dan digunakan untuk memperbarui nilai PeopleRank.Fleksibilitas dalam Pengaturan Parameter:
 
-Algoritma ini dilengkapi dengan parameter yang dapat dikonfigurasi, seperti faktor peluruhan (damping factor) dan threshold durasi koneksi, yang memungkinkan penyesuaian perilaku PeopleRankRouter agar sesuai dengan karakteristik jaringan tertentu.
-Pengolahan Pesan dan Pengiriman:
+Algoritma ini dilengkapi dengan parameter yang dapat dikonfigurasi, seperti faktor peluruhan (damping factor) dan threshold durasi 
+koneksi, yang memungkinkan penyesuaian perilaku PeopleRankRouter agar sesuai dengan karakteristik jaringan tertentu. Pengolahan Pesan dan Pengiriman:
 
-PeopleRankRouter berfungsi untuk memutuskan apakah pesan yang diterima harus diteruskan atau tidak berdasarkan PeopleRank dan status koneksi antara node pengirim dan penerima. Selain itu, ia juga mengelola buffer pesan dan menangani penghapusan atau penyimpanan pesan sesuai 
-dengan keputusan routing yang diambil.
+PeopleRankRouter berfungsi untuk memutuskan apakah pesan yang diterima harus diteruskan atau tidak berdasarkan PeopleRank dan
+status koneksi antara node pengirim dan penerima. Selain itu, ia juga mengelola buffer pesan dan menangani penghapusan atau 
+penyimpanan pesan sesuai dengan keputusan routing yang diambil.
+
 Keandalan dan Pengiriman Pesan:
 
-Meskipun berfokus pada routing pesan melalui node dengan PeopleRank tertinggi, sistem ini juga mempertimbangkan faktor-faktor seperti latensi, jumlah hop, dan waktu buffering untuk memaksimalkan keandalan pengiriman pesan.
+Meskipun berfokus pada routing pesan melalui node dengan PeopleRank tertinggi, sistem ini juga mempertimbangkan faktor-faktor seperti 
+latensi, jumlah hop, dan waktu buffering untuk memaksimalkan keandalan pengiriman pesan.
 Kegunaan:
 
-PeopleRankRouter sangat berguna dalam jaringan yang memiliki topologi dinamis dan terputus-putus, seperti jaringan ponsel ad-hoc dan jaringan dengan konektivitas yang tidak stabil, di mana pengiriman pesan berbasis pada nilai pengaruh antar node lebih efektif daripada menggunakan algoritma routing tradisional.
+PeopleRankRouter sangat berguna dalam jaringan yang memiliki topologi dinamis dan terputus-putus, seperti jaringan ponsel ad-hoc dan 
+jaringan dengan konektivitas yang tidak stabil, di mana pengiriman pesan berbasis pada nilai pengaruh antar node lebih efektif daripada menggunakan 
+algoritma routing tradisional.
 Aplikasi:
 
 PeopleRankRouter dapat diterapkan dalam sistem komunikasi terdesentralisasi, seperti aplikasi messaging peer-to-peer (P2P), jaringan sensor, dan sistem routing di lingkungan yang sering terputus, seperti dalam situasi darurat atau di daerah terpencil.
+
+
+Deskripsi Kode PeopleRankRouting
+PeopleRankRouting adalah kelas yang mengimplementasikan algoritma routing berbasis PeopleRank dalam konteks jaringan terdistribusi, seperti Mobile Ad Hoc Networks (MANETs) atau Delay Tolerant Networks (DTNs). Routing di sini dilakukan dengan mempertimbangkan peringkat sosial atau PeopleRank dari node (host) dalam jaringan. Algoritma ini mengarahkan pesan ke node yang memiliki PeopleRank lebih tinggi, yang dianggap lebih penting atau lebih terhubung dalam jaringan.
+
+Berikut adalah penjelasan bagian per bagian dari kode PeopleRankRouting:
+
+1. Deklarasi dan Inisialisasi Variabel
+dumpingFactor: Faktor peluruhan yang digunakan untuk mengontrol seberapa besar pengaruh teman-teman pada PeopleRank.
+treshold: Ambang batas durasi koneksi yang perlu dipertimbangkan untuk menghitung PeopleRank.
+peopleRankUpdate: Map yang menyimpan pembaruan PeopleRank untuk setiap host, dengan nilai Tuple yang berisi peringkat dan jumlah teman.
+connectionHistory: Menyimpan riwayat durasi koneksi antar host.
+startTimeStamps: Menyimpan waktu mulai setiap koneksi untuk perhitungan durasi.
+hosts: Set yang menyimpan host yang terhubung (teman) dalam jaringan.
+2. Konstruktor
+PeopleRankRouting(Settings s): Konstruktor ini menginisialisasi objek dengan parameter dari konfigurasi (seperti dumpingFactor dan treshold) dan menyiapkan struktur data yang diperlukan (seperti connectionHistory, peopleRankUpdate, dan hosts).
+
+PeopleRankRouting(PeopleRankRouting pr): Konstruktor salinan yang membuat salinan dari objek PeopleRankRouting yang ada.
+
+3. Metode connectionUp dan doExchangeForNewConnection
+connectionUp(DTNHost thisHost, DTNHost peer): Menangani koneksi yang baru terhubung, meskipun dalam kode ini tidak ada implementasi lebih lanjut.
+doExchangeForNewConnection(Connection con, DTNHost peer): Menghitung dan memperbarui waktu mulai koneksi untuk kedua host (thisHost dan peer) ketika sebuah koneksi baru terjalin.
+4. Metode connectionDown
+connectionDown(DTNHost thisHost, DTNHost peer): Dipanggil ketika koneksi antar dua host terputus. Metode ini mencatat durasi koneksi dan meng-update connectionHistory. Jika durasi koneksi lebih besar dari threshold, maka peer ditambahkan ke daftar teman (hosts) dan PeopleRank dihitung ulang.
+5. Metode Pembantu
+getPreviousConnectionStartTime(DTNHost thisHost, DTNHost peer): Mengambil waktu mulai koneksi terakhir antara dua host untuk menghitung durasi.
+getOtherDecisionEngine(DTNHost h): Mengambil engine keputusan routing dari host lain yang terhubung (peer).
+6. Metode Routing
+isFinalDest(Message m, DTNHost aHost): Mengecek apakah pesan sudah mencapai tujuan akhirnya.
+newMessage(Message m): Digunakan untuk mendeteksi pesan baru.
+shouldDeleteOldMessage(Message m, DTNHost hostReportingOld): Memutuskan apakah pesan lama harus dihapus.
+shouldDeleteSentMessage(Message m, DTNHost otherHost): Memutuskan apakah pesan yang sudah dikirim harus dihapus.
+shouldSaveReceivedMessage(Message m, DTNHost thisHost): Memutuskan apakah pesan yang diterima harus disimpan.
+shouldSendMessageToHost(Message m, DTNHost otherHost, DTNHost thisHost): Fungsi utama untuk menentukan apakah pesan harus dikirim ke host lain berdasarkan PeopleRank. Menggunakan PeopleRank untuk memutuskan apakah host tujuan memiliki peringkat lebih tinggi dari host pengirim.
+7. Perhitungan PeopleRank
+calculatePeopleRank(DTNHost host): Menghitung nilai PeopleRank untuk host tertentu menggunakan rumus:
+PeR
+(
+𝑁
+𝑖
+)
+=
+(
+1
+−
+𝑑
+)
++
+𝑑
+×
+∑
+PeR
+(
+𝑁
+𝑗
+)
+∣
+𝐹
+(
+𝑁
+𝑗
+)
+∣
+PeR(N 
+i
+​
+ )=(1−d)+d×∑ 
+∣F(N 
+j
+​
+ )∣
+PeR(N 
+j
+​
+ )
+​
+ 
+Di mana d adalah damping factor, PeR(N_j) adalah PeopleRank dari teman, dan |F(N_j)| adalah jumlah teman dari node N_j. Fungsi ini menghitung PeopleRank berdasarkan kontribusi dari setiap teman yang terhubung.
+8. Metode Replikasi dan Pembaruan
+replicate(): Membuat salinan dari objek PeopleRankRouting untuk replikasi.
+update(DTNHost thisHost): Digunakan untuk memperbarui status dari host tertentu (meskipun dalam kode ini belum ada implementasi spesifik).
+9. Mengambil Semua Peringkat
+getAllRankings(): Mengembalikan map yang berisi semua peringkat (PeopleRank) dari setiap host dalam jaringan.
+10. Mengambil Total Teman
+getTotalFriends(DTNHost host): Mengembalikan jumlah teman yang dimiliki oleh host tertentu, berdasarkan data yang disimpan dalam peopleRankUpdate.
 */
 
