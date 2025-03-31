@@ -823,48 +823,8 @@ shouldSaveReceivedMessage(Message m, DTNHost thisHost): Memutuskan apakah pesan 
 shouldSendMessageToHost(Message m, DTNHost otherHost, DTNHost thisHost): Fungsi utama untuk menentukan apakah pesan harus dikirim ke host lain berdasarkan PeopleRank. Menggunakan PeopleRank untuk memutuskan apakah host tujuan memiliki peringkat lebih tinggi dari host pengirim.
 7. Perhitungan PeopleRank
 calculatePeopleRank(DTNHost host): Menghitung nilai PeopleRank untuk host tertentu menggunakan rumus:
-PeR
-(
-𝑁
-𝑖
-)
-=
-(
-1
-−
-𝑑
-)
-+
-𝑑
-×
-∑
-PeR
-(
-𝑁
-𝑗
-)
-∣
-𝐹
-(
-𝑁
-𝑗
-)
-∣
-PeR(N 
-i
-​
- )=(1−d)+d×∑ 
-∣F(N 
-j
-​
- )∣
-PeR(N 
-j
-​
- )
-​
- 
-Di mana d adalah damping factor, PeR(N_j) adalah PeopleRank dari teman, dan |F(N_j)| adalah jumlah teman dari node N_j. Fungsi ini menghitung PeopleRank berdasarkan kontribusi dari setiap teman yang terhubung.
+PeR(𝑁𝑖)=(1−𝑑)+𝑑×∑PeR(𝑁𝑗)∣𝐹(𝑁𝑗)∣PeR(Ni)=(1−d)+d×∑∣F(Nj)∣PeR(Nj)
+​Di mana d adalah damping factor, PeR(N_j) adalah PeopleRank dari teman, dan |F(N_j)| adalah jumlah teman dari node N_j. Fungsi ini menghitung PeopleRank berdasarkan kontribusi dari setiap teman yang terhubung.
 8. Metode Replikasi dan Pembaruan
 replicate(): Membuat salinan dari objek PeopleRankRouting untuk replikasi.
 update(DTNHost thisHost): Digunakan untuk memperbarui status dari host tertentu (meskipun dalam kode ini belum ada implementasi spesifik).
