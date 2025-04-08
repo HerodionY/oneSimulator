@@ -10,7 +10,7 @@
       "label": "run_one",
       //"command": "./one.bat -b 1 PeopleRank.txt", // without GUI
       // "command": "./one.bat 1 PeopleRank.txt", // with GUI  
-      "command": "./one.bat 1 PeopleRank.txt", 
+      "command": "./one.bat -b 1 Bubblerap.txt", 
       "type": "shell"
     },
     {

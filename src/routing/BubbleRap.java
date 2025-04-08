@@ -1,8 +1,4 @@
-
-/*
- * Bubble Rap (by Antok)
- */
-package routing.community;
+package routing;
 
 import java.util.*;
 
@@ -10,6 +6,13 @@ import core.*;
 import routing.DecisionEngineRouter;
 import routing.MessageRouter;
 import routing.RoutingDecisionEngine;
+import routing.community.CommunityDetectionEngine;
+import routing.community.CommunityDetection;
+import routing.community.SimpleCommunityDetection;
+import routing.community.Duration;
+import routing.community.Centrality;
+import routing.community.AverageWinCentrality1;
+
 
 public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngine {
 
@@ -113,39 +116,36 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
 
     @Override
     public boolean shouldSendMessageToHost(Message m, DTNHost otherHost, DTNHost thisHost) {
-    // Jika host tujuan adalah otherHost, langsung kirim
-    if (m.getTo() == otherHost) {
-        return true;
-    }
+        if (m.getTo() == otherHost) {
+            return true; // deliver to final destination
+        }
+        // now we decide where to forward a message to relay node
+        DTNHost dest = m.getTo();
+        BubbleRap de = getOtherDecisionEngine(otherHost);
 
-    DTNHost dest = m.getTo();
-    BubbleRap de = getOtherDecisionEngine(otherHost);
+        boolean peerInCommunity = de.commumesWithHost(dest); // Is peer in dest'community
+        boolean meInCommunity = this.commumesWithHost(dest); // Is THIS in dest'community
 
-    // Cek apakah masing-masing host berada dalam komunitas yang sama dengan tujuan
-    boolean peerInCommunity = de.commumesWithHost(dest); // apakah otherHost dalam komunitas tujuan
-    boolean meInCommunity = this.commumesWithHost(dest); // apakah thisHost dalam komunitas tujuan
+        if (peerInCommunity && !meInCommunity) // peer is in dest's community, but THIS is not
+        {
+            return true;
+        } else if (!peerInCommunity && meInCommunity) // THIS is in dest'community, but peer is not
+        {
+            return false;
+        } else if (peerInCommunity) // We're both in dest'community
+        {
+            // Forward to the one with the higher local centrality (in dest'community)
+            if (de.getLocalCentrality() > this.getLocalCentrality()) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (de.getGlobalCentrality() > this.getGlobalCentrality()) {
+            return true;
+        }
 
-    if (peerInCommunity && !meInCommunity) {
-        // otherHost dalam komunitas tujuan, thisHost tidak
-        return true;
-    }
-
-    if (!peerInCommunity && meInCommunity) {
-        // thisHost dalam komunitas tujuan, otherHost tidak
         return false;
     }
-
-    if (peerInCommunity && meInCommunity) {
-        // Keduanya berada dalam komunitas tujuan
-        // Gunakan local centrality untuk memutuskan forwarding
-        return de.getLocalCentrality() > this.getLocalCentrality();
-    }
-
-    // Jika keduanya tidak dalam komunitas tujuan
-    // Gunakan global centrality
-    return de.getGlobalCentrality() > this.getGlobalCentrality();
-}
-
 
     @Override
     public boolean shouldDeleteSentMessage(Message m, DTNHost otherHost) {

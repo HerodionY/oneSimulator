@@ -1,6 +1,4 @@
-package routing.community;
-
-
+package routing;
 
 import java.util.Set;
 import java.util.HashSet;
@@ -9,14 +7,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-
-
 import core.DTNHost;
 import core.Settings;
 import core.SimClock;
 
+import routing.community.CommunityDetection;
+import routing.community.Duration;
 
 public class KCliqueCommunityDetection implements CommunityDetection {
+// 		// 1. Each node starts with its own community
+// 		// 2. Each node sends a message to its neighbors with its community
+// 		// 3. Each node receives messages from its neighbors and adds them to its
+
+// 		// community
+// 		// 4. Each node sends a message to its neighbors with its community
+// 		// 5. Each node receives messages from its neighbors and adds them to its
+// 		// community
+
     public static final String K_SETTING = "K";
 	public static final String FAMILIAR_SETTING = "familiarThreshold";
 	
@@ -27,52 +34,47 @@ public class KCliqueCommunityDetection implements CommunityDetection {
 	protected double k;
 	protected double familiarThreshold;
 
-	public KCliqueCommunityDetection(Settings s)
-	{
-		this.k = s.getDouble(K_SETTING);
-		this.familiarThreshold = s.getDouble(FAMILIAR_SETTING);
-		this.familiarSet = new HashSet<>();
-		this.localCommunity = new HashSet<>();
-		this.familiarsOfMyCommunity = new HashMap<>();
-	}
+    public KCliqueCommunityDetection(Settings s)
+    {
+        this.k = s.getDouble(K_SETTING);
+        this.familiarThreshold = s.getDouble(FAMILIAR_SETTING);
+        this.familiarSet = new HashSet<>();
+        this.localCommunity = new HashSet<>();
+        this.familiarsOfMyCommunity = new HashMap<>();
+    }
 
     public KCliqueCommunityDetection(KCliqueCommunityDetection proto)
-	{
-		this.k = proto.k;
-		this.familiarThreshold = proto.familiarThreshold;
-		familiarSet = new HashSet<DTNHost>();
-		localCommunity = new HashSet<DTNHost>();
-		this.familiarsOfMyCommunity = new HashMap<DTNHost, Set<DTNHost>>();
-	}
+    {
+        this.k = proto.k;
+        this.familiarThreshold = proto.familiarThreshold;
+        familiarSet = new HashSet<DTNHost>();
+        localCommunity = new HashSet<DTNHost>();
+        this.familiarsOfMyCommunity = new HashMap<DTNHost, Set<DTNHost>>();
+    }
 
-    public void newConnection(DTNHost myHost, DTNHost peer, 
-			CommunityDetection peerCD)
-	{
-		KCliqueCommunityDetection scd = (KCliqueCommunityDetection)peerCD;
-		
-		// Ensure each node is in its own local community
-		// (This is the first instance where we actually get the host for these 
-		// objects)
-		this.localCommunity.add(myHost);
-		scd.localCommunity.add(peer);
-		
-		/*
-		 * The first few steps of the protocol are
-		 *  (1) update my local approximation of my peer's familiar set
-		 *  (2) merge my and my peer's local approximations of our respective
-		 *      community's familiar sets
-		 * 
-		 * In both these cases, for ONE, each CommunityDetection object stores a 
-		 * reference to the familiar set of its community members. As those members
-		 * update their familiar set, others storing a reference to that set
-		 * immediately witness the reflected changes. Therefore, we don't have to 
-		 * anything to update an "approximation" of the familiar sets. They're not
-		 * approximations here anymore. In this way, what we have in the k-Clique
-		 * community detection class is an upper bound on the performance of the
-		 * protocol.
-		 */
-		
-		// Add peer to my local community if needed
+    public void newConnection(DTNHost myHost, DTNHost peer,
+            CommunityDetection peerCD)
+    {
+        KCliqueCommunityDetection scd = (KCliqueCommunityDetection)peerCD;
+        
+        // Ensure each node is in its own local community
+        // (This is the first instance where we actually get the host for these 
+        // objects)
+        this.localCommunity.add(myHost);
+        scd.localCommunity.add(peer);
+        
+        /*
+         * The first few steps of the protocol are
+         * 1. Each node starts with its own community
+         * 2. Each node sends a message to its neighbors with its community
+         * 3. Each node receives messages from its neighbors and adds them to its
+         * community
+         * 4. Each node sends a message to its neighbors with its community
+         * 5. Each node receives messages from its neighbors and adds them to its
+         * community
+         */
+
+        // Add peer to my local community if needed
 		if(!this.localCommunity.contains(peer))
 		{
 			/*
@@ -143,6 +145,7 @@ public class KCliqueCommunityDetection implements CommunityDetection {
 			}
 		}
 	}
+    
 
     public void connectionLost(DTNHost myHost, DTNHost peer, 
 			CommunityDetection peerCD, List<Duration> history)
@@ -168,19 +171,20 @@ public class KCliqueCommunityDetection implements CommunityDetection {
 		}
 	}
 
-	public boolean isHostInCommunity(DTNHost h)
-	{
-		return this.localCommunity.contains(h);
-	}
+    public boolean isHostInCommunity(DTNHost h)
+    {
+        return this.localCommunity.contains(h);
+    }
 
-	public CommunityDetection replicate()
-	{
-		return new KCliqueCommunityDetection(this);
-	}
+    public CommunityDetection replicate()
+    {
+        return new KCliqueCommunityDetection(this);
+    }
+    public Set<DTNHost> getLocalCommunity()
+    {
+        return this.localCommunity;
+    }
 
-	public Set<DTNHost> getLocalCommunity()
-	{
-		return this.localCommunity;
-	}
+   
 
 }
