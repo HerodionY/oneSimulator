@@ -112,7 +112,7 @@ MovementModel.rngSeed = [2; 8372; 98092; 18293; 777]
 
 
 #ReportsInformations
-Report.nrofReports = 1
+Report.nrofReports = 2
 
 Report.reportDir = reports/Contact/Reality
 
@@ -124,8 +124,8 @@ Report.reportDir = reports/Contact/Reality
 #Report.report1 = UniqueEncountersReport
 #Report.report2 = TotalEncountersReport
 #Report.report1 = DeliveryCentralityReport
-#Report.report1  = ReportContactIntervalTime
-Report.report1 = CommunityDetectionReport
+Report.report1  = ReportContactIntervalTime
+Report.report2 = InterContactTimesReportE
 #Report.report3 = BufferOccupancyReport
 #Report.report4 = BufferOccupancyEWMAReport
 #Report.report1 = DegreeCentralityReport

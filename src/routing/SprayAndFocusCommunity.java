@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.LinkedList;
 
 import core.Connection;
 import core.DTNHost;
@@ -49,8 +50,7 @@ public class SprayAndFocusCommunity implements RoutingDecisionEngine, CommunityD
         initialNrofCopies = snf.getInt(NROF_COPIES_S);
         transitivityTimerThreshold = snf.contains(TIMER_THRESHOLD_S) ? snf.getDouble(TIMER_THRESHOLD_S) : defaultTransitivityThreshold;
 
-        if (s.contains(COMMUNITY_ALG_SETTING)) // added
-        {
+        if (s.contains(COMMUNITY_ALG_SETTING)) {
             this.community = (CommunityDetection) s.createIntializedObject(s.getSetting(COMMUNITY_ALG_SETTING));
         } else {
             this.community = new SimpleCommunityDetection(s);
@@ -63,6 +63,8 @@ public class SprayAndFocusCommunity implements RoutingDecisionEngine, CommunityD
         }
 
         recentEncounters = new HashMap<>();
+        startTimestamps = new HashMap<>();
+        connHistory = new HashMap<>();
     }
 
     public SprayAndFocusCommunity(SprayAndFocusCommunity r) {
@@ -70,8 +72,9 @@ public class SprayAndFocusCommunity implements RoutingDecisionEngine, CommunityD
         this.transitivityTimerThreshold = r.transitivityTimerThreshold;
         this.community = r.community.replicate();
         this.centrality = r.centrality.replicate();
-        startTimestamps = new HashMap<DTNHost, Double>();
-        connHistory = new HashMap<DTNHost, List<Duration>>();
+        this.recentEncounters = new HashMap<>();
+        this.startTimestamps = new HashMap<>();
+        this.connHistory = new HashMap<>();
     }
 
     public RoutingDecisionEngine replicate() {
@@ -79,11 +82,40 @@ public class SprayAndFocusCommunity implements RoutingDecisionEngine, CommunityD
     }
 
     public void connectionUp(DTNHost thisHost, DTNHost peer) {
-        // To be implemented if needed
+        // Optional: connection started
     }
 
     public void connectionDown(DTNHost thisHost, DTNHost peer) {
-        // To be implemented if needed
+        // Optional: connection ended
+        // double time = startTimestamps.get(peer);
+        double time = cek(thisHost, peer);
+        double etime = SimClock.getTime();
+
+        // Find or create the connection history list
+        List<Duration> history;
+        if (!connHistory.containsKey(peer)) {
+            history = new LinkedList<Duration>();
+            connHistory.put(peer, history);
+        } else {
+            history = connHistory.get(peer);
+        }
+
+        // add this connection to the list
+        if (etime - time > 0) {
+            history.add(new Duration(time, etime));
+        }
+
+        CommunityDetection peerCD = this.getOtherSnFDecisionEngine(peer).community; // added
+        community.connectionLost(thisHost, peer, peerCD, history); // added
+
+        startTimestamps.remove(peer);
+    }
+
+    public double cek(DTNHost thisHost, DTNHost peer) {
+        if (startTimestamps.containsKey(thisHost)) {
+            startTimestamps.get(peer);
+        }
+        return 0;
     }
 
     @Override
@@ -167,12 +199,17 @@ public class SprayAndFocusCommunity implements RoutingDecisionEngine, CommunityD
         int numberOfCopies = (Integer) m.getProperty(MSG_COUNT_PROP);
         if (numberOfCopies > 1) return true;
 
-        DTNHost destination = m.getTo();
+        // FOCUS: only forward if otherHost has higher centrality rank
         SprayAndFocusCommunity de = this.getOtherSnFDecisionEngine(otherHost);
 
-        if (!de.recentEncounters.containsKey(destination)) return false;
-        if (!recentEncounters.containsKey(destination)) return true;
-        return de.recentEncounters.get(destination) > recentEncounters.get(destination);
+        double myRank = this.getLocalCentrality();
+        double peerRank = de.getLocalCentrality();
+
+        return peerRank > myRank;
+    }
+
+    private double getLocalCentrality() {
+        return this.centrality.getLocalCentrality(connHistory, community);
     }
 
     private SprayAndFocusCommunity getOtherSnFDecisionEngine(DTNHost otherHost) {
@@ -185,4 +222,4 @@ public class SprayAndFocusCommunity implements RoutingDecisionEngine, CommunityD
     public Set<DTNHost> getLocalCommunity() {
         return this.community.getLocalCommunity();
     }
-} 
+}
