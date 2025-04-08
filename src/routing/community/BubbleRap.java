@@ -89,10 +89,10 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
     }
 
     public double cek(DTNHost thisHost, DTNHost peer) {
-        if (startTimestamps.containsKey(thisHost)) {
-            startTimestamps.get(peer);
-        }
-        return 0;
+    if (startTimestamps.containsKey(peer)) {
+        return startTimestamps.get(peer);
+    }
+    return SimClock.getTime(); // fallback agar tidak error
     }
 
     @Override

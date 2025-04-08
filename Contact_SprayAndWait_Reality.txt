@@ -3,11 +3,11 @@
 
 #Scenario information
 #Scenario.name = connection-Rank
-Scenario.name = SprayAndWait
+Scenario.name = SprayAndFocusCommunity
 Scenario.simulateConnections = false
 Scenario.updateInterval = 1
 
-Scenario.endTime = 16981816
+Scenario.endTime = 1698181
 #Scenario.endTime = 16981816
 #987529 Haggle Cam
 #274883 Haggle
@@ -43,7 +43,11 @@ Group.bufferSize = 20M
 #Group.router = DecisionEngineRouter
 #DecisionEngineRouter.decisionEngine = community.RandomWalk
 
-Group.router = SprayAndWaitRouter
+Group.router = DecisionEngineRouter
+DecisionEngineRouter.decisionEngine = SprayAndFocusCommunity
+DecisionEngineRouter.lambda = 10
+DecisionEngineRouter.gamma = 10
+DecisionEngineRouter.familiarThreshold = 10
 #DecisionEngineRouter.decisionEngine = community.BubbleRap
 #DecisionEngineRouter.communityDetectAlg = routing.community.KCliqueCommunityDetection
 #DecisionEngineRouter.K = 5
@@ -127,3 +131,6 @@ Report.report1  = ReportContactIntervalTime
 #Report.report8 = CommunityDetectionReport
 
 ProphetRouter.secondsInTimeUnit = 30
+
+SprayAndFocusRouter.nrofCopies = 10
+SprayAndFocusRouter.binaryMode = true
