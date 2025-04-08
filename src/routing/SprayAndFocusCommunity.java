@@ -49,13 +49,18 @@ public class SprayAndFocusCommunity implements RoutingDecisionEngine, CommunityD
         initialNrofCopies = snf.getInt(NROF_COPIES_S);
         transitivityTimerThreshold = snf.contains(TIMER_THRESHOLD_S) ? snf.getDouble(TIMER_THRESHOLD_S) : defaultTransitivityThreshold;
 
-        this.community = s.contains(COMMUNITY_ALG_SETTING)
-                ? (CommunityDetection) s.createIntializedObject(s.getSetting(COMMUNITY_ALG_SETTING))
-                : new SimpleCommunityDetection(s);
+        if (s.contains(COMMUNITY_ALG_SETTING)) // added
+        {
+            this.community = (CommunityDetection) s.createIntializedObject(s.getSetting(COMMUNITY_ALG_SETTING));
+        } else {
+            this.community = new SimpleCommunityDetection(s);
+        }
 
-        this.centrality = s.contains(CENTRALITY_ALG_SETTING)
-                ? (Centrality) s.createIntializedObject(s.getSetting(CENTRALITY_ALG_SETTING))
-                : new AverageWinCentrality1(s);
+        if (s.contains(CENTRALITY_ALG_SETTING)) {
+            this.centrality = (Centrality) s.createIntializedObject(s.getSetting(CENTRALITY_ALG_SETTING));
+        } else {
+            this.centrality = new AverageWinCentrality1(s);
+        }
 
         recentEncounters = new HashMap<>();
     }
@@ -63,9 +68,10 @@ public class SprayAndFocusCommunity implements RoutingDecisionEngine, CommunityD
     public SprayAndFocusCommunity(SprayAndFocusCommunity r) {
         this.initialNrofCopies = r.initialNrofCopies;
         this.transitivityTimerThreshold = r.transitivityTimerThreshold;
-        this.community = r.community;
-        this.centrality = r.centrality;
-        this.recentEncounters = new HashMap<>();
+        this.community = r.community.replicate();
+        this.centrality = r.centrality.replicate();
+        startTimestamps = new HashMap<DTNHost, Double>();
+        connHistory = new HashMap<DTNHost, List<Duration>>();
     }
 
     public RoutingDecisionEngine replicate() {
@@ -170,9 +176,9 @@ public class SprayAndFocusCommunity implements RoutingDecisionEngine, CommunityD
     }
 
     private SprayAndFocusCommunity getOtherSnFDecisionEngine(DTNHost otherHost) {
-    MessageRouter otherRouter = otherHost.getRouter();
-    assert otherRouter instanceof DecisionEngineRouter : "This router only works with other routers of same type";
-    return (SprayAndFocusCommunity) ((DecisionEngineRouter) otherRouter).getDecisionEngine();
+        MessageRouter otherRouter = otherHost.getRouter();
+        assert otherRouter instanceof DecisionEngineRouter : "This router only works with other routers of same type";
+        return (SprayAndFocusCommunity) ((DecisionEngineRouter) otherRouter).getDecisionEngine();
     }
 
     @Override
