@@ -162,13 +162,15 @@ MapBasedMovement.mapFile4 = data/shops.wkt
 ## Reports - all report names have to be valid report classes
 
 # how many reports to load
-Report.nrofReports = 1
+Report.nrofReports = 3
 # length of the warm up period (simulated seconds)
 Report.warmup = 0
 # default directory of reports (can be overridden per Report with output setting)
 Report.reportDir = reports/bubble_rap
 # Report classes to load
-Report.report1 = CommunityDetectionReport
+Report.report1  = ContactTimesReportE
+Report.report2 = InterContactTimesReportE
+Report.report3 = MessageStatsReport
 
 ## Default settings for some routers settings
 ProphetRouter.secondsInTimeUnit = 30

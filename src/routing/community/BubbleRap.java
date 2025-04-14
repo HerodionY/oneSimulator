@@ -112,7 +112,7 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
     }
 
     @Override
-    public boolean shouldSendMessageToHost(Message m, DTNHost otherHost, DTNHost thisHost) {
+     public boolean shouldSendMessageToHost(Message m, DTNHost otherHost, DTNHost thisHost) {
         if (m.getTo() == otherHost) {
             return true; // deliver to final destination
         }
