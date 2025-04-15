@@ -1,17 +1,29 @@
+
+/*
+ * Bubble Rap (by Antok)
+ */
 package routing;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashSet;
 
-import core.*;
-import routing.DecisionEngineRouter;
-import routing.MessageRouter;
-import routing.RoutingDecisionEngine;
-import routing.community.CommunityDetectionEngine;
-import routing.community.CommunityDetection;
-import routing.community.SimpleCommunityDetection;
-import routing.community.Duration;
-import routing.community.Centrality;
+import core.Connection;
+import core.DTNHost;
+import core.Message;
+import core.Settings;
+import core.SimClock;
 import routing.community.AverageWinCentrality1;
+import routing.community.Centrality;
+import routing.community.CommunityDetection;
+import routing.community.CommunityDetectionEngine;
+import routing.community.Duration;
+import routing.community.SimpleCommunityDetection;
+import routing.community.getGlobalCommunity;
 
 
 public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngine {
@@ -22,6 +34,9 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
 
     protected Map<DTNHost, Double> startTimestamps;
     protected Map<DTNHost, List<Duration>> connHistory;
+    protected Map<DTNHost, List<Double>> hostConnectedHistory;
+
+    protected static final double DEFAULT_TIMEDIFF = 300;
 
     protected CommunityDetection community; // added
     protected Centrality centrality;
@@ -41,14 +56,17 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
         } else {
             this.centrality = new AverageWinCentrality1(s);
         }
+        
     }
 
     // Constructor based on the argument prototype
     public BubbleRap(BubbleRap proto) {
         this.community = proto.community.replicate(); // added
         this.centrality = proto.centrality.replicate();
+        
         startTimestamps = new HashMap<DTNHost, Double>();
         connHistory = new HashMap<DTNHost, List<Duration>>();
+        hostConnectedHistory = new HashMap<DTNHost, List<Double>>();
     }
 
     public void connectionUp(DTNHost thisHost, DTNHost peer) {
@@ -75,10 +93,17 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
         List<Duration> history;
         if (!connHistory.containsKey(peer)) {
             history = new LinkedList<Duration>();
+            int hostConnected = 0;
+            
             connHistory.put(peer, history);
         } else {
             history = connHistory.get(peer);
         }
+        List<Double> centralityList = new ArrayList<>();
+        centralityList.add(this.getLocalCentrality());
+        hostConnectedHistory.put(thisHost, centralityList);
+
+       
 
         // add this connection to the list
         if (etime - time > 0) {
@@ -125,6 +150,8 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
 
         boolean peerInCommunity = de.commumesWithHost(dest); // Is peer in dest'community
         boolean meInCommunity = this.commumesWithHost(dest); // Is THIS in dest'community
+
+    
 
         if (peerInCommunity && !meInCommunity) // peer is in dest's community, but THIS is not
         {
@@ -175,11 +202,16 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
     }
 
     protected double getLocalCentrality() {
+        
         return this.centrality.getLocalCentrality(connHistory, community);
     }
 
     protected double getGlobalCentrality() {
         return this.centrality.getGlobalCentrality(connHistory);
+    }
+
+    protected double[] getGlobalArrayCentrality() {
+        return this.centrality.getGlobalArrayCentrality(connHistory);
     }
 
     private BubbleRap getOtherDecisionEngine(DTNHost h) {
@@ -195,6 +227,14 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
     public Set<DTNHost> getLocalCommunity() {
         return this.community.getLocalCommunity();
     }
+
+    
+    public double[] getGlobalArrayCentralityPublic() {
+        return getGlobalArrayCentrality();
+    }
+
+
+   
 
     @Override
     public void update(DTNHost thisHost) {

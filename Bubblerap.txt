@@ -8,7 +8,7 @@ Scenario.name = bubble_rap
 Scenario.simulateConnections = true
 Scenario.updateInterval = 0.1
 # 43200s == 12h
-Scenario.endTime = 2000000
+Scenario.endTime = 200000
 
 ## Interface-specific settings:
 # type : which interface class the interface belongs to
@@ -162,15 +162,15 @@ MapBasedMovement.mapFile4 = data/shops.wkt
 ## Reports - all report names have to be valid report classes
 
 # how many reports to load
-Report.nrofReports = 3
+Report.nrofReports = 2
 # length of the warm up period (simulated seconds)
 Report.warmup = 0
 # default directory of reports (can be overridden per Report with output setting)
-Report.reportDir = reports/bubble_rap
+Report.reportDir = reports/uts
 # Report classes to load
-Report.report1  = ContactTimesReportE
-Report.report2 = InterContactTimesReportE
-Report.report3 = MessageStatsReport
+Report.report1  = GlobalPopularityReport
+Report.report2 = ContactPer24Hours
+#Report.report3 = MessageStatsReport
 
 ## Default settings for some routers settings
 ProphetRouter.secondsInTimeUnit = 30

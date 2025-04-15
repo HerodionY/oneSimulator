@@ -67,6 +67,9 @@ public class DegreeCentrality implements Centrality
 		return centrality;
 	}
 
+	//tambahan
+	
+
 	public Centrality replicate()
 	{
 		return new DegreeCentrality(this);

@@ -6,9 +6,10 @@
  */
 package routing.community;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
-import core.*;
+import core.DTNHost;
 
 /**
  * <p>
@@ -63,5 +64,6 @@ public interface Centrality
 	public Centrality replicate();
 	
 	//Ini tambahanku sementara
-	//public int [] getGlobalArrayCentrality (Map<DTNHost, List<Duration>> connHistory);
+	public double [] getGlobalArrayCentrality (Map<DTNHost, List<Duration>> connHistory);
+
 }

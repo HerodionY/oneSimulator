@@ -263,6 +263,50 @@ public class CWindowCentrality implements Centrality
 		return this.localCentrality;
 	}
 
+	//tambah
+	// public double getLocalCentrality(Map<DTNHost, List<Duration>> connHistory) {
+	@Override
+	public double[] getGlobalArrayCentrality(Map<DTNHost, List<Duration>> connHistory) {
+    int timeNow = SimClock.getIntTime();
+    int timeWindow = 86400; // 24 jam dalam detik
+    int maxEpoch = EPOCH_COUNT;
+
+    // Inisialisasi array untuk mencatat centrality tiap epoch
+    double[] centralities = new double[maxEpoch];
+
+    // Map untuk melacak siapa saja yang sudah dihitung di setiap epoch
+    Map<Integer, Set<DTNHost>> nodesCountedInEpoch = new HashMap<>();
+    for (int i = 0; i < maxEpoch; i++) {
+        nodesCountedInEpoch.put(i, new HashSet<>());
+    }
+
+    // Iterasi untuk setiap koneksi dan durasi yang ada di connHistory
+    for (Map.Entry<DTNHost, List<Duration>> entry : connHistory.entrySet()) {
+        DTNHost h = entry.getKey();
+        for (Duration d : entry.getValue()) {
+            int timePassed = timeNow - (int)d.end;
+            if (timePassed > timeWindow * maxEpoch) {
+                break; // Lewat dari epoch yang kita catat
+            }
+
+            int epoch = timePassed / timeWindow;
+            if (epoch >= maxEpoch) continue;
+
+            // Cek apakah node sudah dihitung di epoch ini
+            Set<DTNHost> countedNodes = nodesCountedInEpoch.get(epoch);
+            if (!countedNodes.contains(h)) {
+                centralities[epoch]++; // Tambah satu untuk setiap node baru yang dihitung
+                countedNodes.add(h); // Tandai node ini sudah dihitung di epoch ini
+            }
+        }
+    }
+
+    return centralities;
+}
+
+
+
+
 	public Centrality replicate()
 	{
 		return new CWindowCentrality(this);

@@ -6,8 +6,9 @@
  */
 package routing.community;
 
-import java.util.*;
-import core.*;
+import java.util.Set;
+
+import core.DTNHost;
 
 /**
  * Declares a RoutingDecisionEngine object to also perform community detection
@@ -25,4 +26,6 @@ public interface CommunityDetectionEngine
 	 * @return Set of hosts in the local community
 	 */
 	public Set<DTNHost> getLocalCommunity();
+
+	
 }
