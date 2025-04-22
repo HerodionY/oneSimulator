@@ -218,8 +218,8 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
      * passed as an argument.
      * 
      * @param connHistory Contact History on which to compute centrality
-     * mofied by Herodion
      * @return Global centrality value
+     *  * modified by Herodion
      */
     protected double[] getGlobalArrayCentrality() {
         return this.centrality.getGlobalArrayCentrality(connHistory);

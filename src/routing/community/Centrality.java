@@ -64,6 +64,14 @@ public interface Centrality
 	public Centrality replicate();
 	
 	//Ini tambahanku sementara
+	/**
+	 * Returns the computed global array centrality based on the connection history
+	 * passed as an argument.  
+	 *
+	 * @param connHistory Contact History on which to compute centrality
+	 * @return Array of values corresponding to the global array centrality
+	 * Modified by Herodion
+	 */
 	public double [] getGlobalArrayCentrality (Map<DTNHost, List<Duration>> connHistory);
 
 }
