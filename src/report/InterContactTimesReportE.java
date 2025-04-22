@@ -61,6 +61,15 @@ import java.util.HashMap;
 
 import core.DTNHost;
 
+/**
+ * * This report counts the inter-contact times between hosts in a DTN network.
+ * It calculates the time between disconnections and connections of hosts.
+ * * The report is useful for analyzing the inter-contact times in a DTN network.
+ * It can help in understanding the connectivity patterns and the behavior of hosts in the network.
+ * * @author Herodion
+ * @version 1.0
+ */
+
 public class InterContactTimesReportE extends ContactTimesReportE {
 
     private double totalInterContactTime = 0.0;

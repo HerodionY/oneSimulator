@@ -14,6 +14,7 @@ import core.Settings;
  * <code>time nrofEvents</code>
  * 
  * Also prints total and average inter-contact time.
+ * 
  */
 
 public class ContactTimesReportE extends Report implements ConnectionListener {

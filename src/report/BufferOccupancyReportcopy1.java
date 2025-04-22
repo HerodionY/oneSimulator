@@ -22,6 +22,18 @@ import core.SimClock;
 import core.SimScenario;
 import core.UpdateListener;
 
+/**
+ * Records the average buffer occupancy and its variance with format:
+ * <p>>
+ * <Simulation time> <average buffer occupancy % [0..100]> <variance>
+ * </p>
+ * *
+ * <p>>
+ * <Simulation time> <average buffer occupancy % [0..100]> <variance>
+ * </p>
+ * 
+ */
+
 public class BufferOccupancyReportcopy1 extends Report implements UpdateListener {
 	/**
 	 * Record occupancy every nth second -setting id ({@value}). 
