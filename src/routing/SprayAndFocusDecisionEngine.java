@@ -4,6 +4,16 @@ import java.util.*;
 import core.*;
 import routing.*;
 
+/**
+ * SprayAndFocusDecisionEngine implements the Spray and Focus routing algorithm.
+ * It is a decision engine that determines how messages are routed in a network.
+ * It uses a spray and focus strategy to manage message copies and routing decisions.
+ * The engine keeps track of recent encounters with other hosts and uses this information
+ * to make routing decisions.
+ * @author Herodion
+ * @version 1.0
+ */
+
 
 public class SprayAndFocusDecisionEngine implements RoutingDecisionEngine {
 

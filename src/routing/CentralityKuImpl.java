@@ -9,6 +9,14 @@ import java.util.Set;
 import core.DTNHost;
 import core.SimClock;
 import routing.community.Duration;
+
+/**
+ * CentralityKuImpl is an implementation of the Centrality interface that calculates
+ * the global array centrality for a given connection history of DTN hosts.
+ * It uses a time window of 24 hours (86400 seconds) to compute the centrality values.
+ * 
+ * @author Herodion 
+ */
 public class CentralityKuImpl implements CentralityKu {
 
     @Override

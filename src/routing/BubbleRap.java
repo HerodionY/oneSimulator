@@ -205,11 +205,22 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
         
         return this.centrality.getLocalCentrality(connHistory, community);
     }
-
+    /**
+     * /* Returns the computed global centrality based on the connection history 
+     * passed as an argument.
+     * modified by Herodion */ 
     protected double getGlobalCentrality() {
         return this.centrality.getGlobalCentrality(connHistory);
     }
 
+    /**
+     * Returns the computed global centrality based on the connection history
+     * passed as an argument.
+     * 
+     * @param connHistory Contact History on which to compute centrality
+     * mofied by Herodion
+     * @return Global centrality value
+     */
     protected double[] getGlobalArrayCentrality() {
         return this.centrality.getGlobalArrayCentrality(connHistory);
     }
@@ -228,7 +239,15 @@ public class BubbleRap implements RoutingDecisionEngine, CommunityDetectionEngin
         return this.community.getLocalCommunity();
     }
 
-    
+    /*
+     * Returns the computed global centrality based on the connection history passed
+     * as an argument.
+     * 
+     * @param connHistory Contact History on which to compute centrality
+     * @return Global centrality value
+     * 
+     * modified by Herodion
+     */
     public double[] getGlobalArrayCentralityPublic() {
         return getGlobalArrayCentrality();
     }

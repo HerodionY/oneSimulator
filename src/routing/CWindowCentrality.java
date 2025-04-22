@@ -220,6 +220,14 @@ public class CWindowCentrality implements Centrality{
 
 	//tambah
 	// public double getLocalCentrality(Map<DTNHost, List<Duration>> connHistory) {
+	/**
+	 * * Menghitung centrality lokal berdasarkan riwayat koneksi
+	 * * @param connHistory Riwayat koneksi antara host-host DTN
+	 * * @return Centrality lokal
+	 * modfied from getLocalCentrality(Map<DTNHost, List<Duration>> connHistory, CommunityDetection cd)
+	 * 
+	 * @author Herodion
+	 */
 	@Override
 	public double[] getGlobalArrayCentrality(Map<DTNHost, List<Duration>> connHistory) {
     int timeNow = SimClock.getIntTime();

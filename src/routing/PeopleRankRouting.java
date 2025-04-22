@@ -29,7 +29,21 @@ import routing.utils.TupleDe;
 
 
 
-
+/**
+ * * Implementation of the PeopleRank routing algorithm.
+ * * This algorithm is based on the concept of PeopleRank, which is a variant of PageRank that takes into account social connections between nodes in a distributed network.
+ * * * The algorithm uses a damping factor and a threshold to determine the ranking of nodes based on their connections and interactions.
+ * * * The algorithm is designed to work in intermittently connected networks, where nodes may not always be able to communicate directly with each other.
+ * * * The algorithm is implemented as a routing decision engine, which means it can be used to make decisions about how to route messages between nodes in the network.
+ * * * The algorithm is designed to be extensible and can be replicated to create new instances of the routing decision engine.
+ * * * The algorithm is part of a larger routing framework and is intended to be used in conjunction with other routing decision engines and message routers.
+ * * * The algorithm is implemented in Java and uses object-oriented programming principles.
+ * * * The algorithm is designed to be modular and reusable, allowing for easy modification and extension.
+ * * * The algorithm is part of a simulation framework for testing and evaluating routing algorithms in delay tolerant networks.
+ * * * The algorithm provides a flexible and extensible framework for building and testing routing algorithms.
+ * @author Herodion
+ * * @version 1.0
+ */
 public class PeopleRankRouting implements RoutingDecisionEngine, NodeRanking {
 
 

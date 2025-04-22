@@ -2,6 +2,31 @@ package routing;
 
 import core.*;
 
+/**
+ * * SnWDecisionEngineRouting class implements RoutingDecisionEngine interface.
+ * It is a decision engine that determines how messages are routed in a network.
+ * It uses a spray and wait strategy to manage message copies and routing
+ * decisions.
+ *  * The class is designed to work with DTN (Delay Tolerant Networking) hosts
+ * and messages. It provides methods to handle message routing, connection
+ * establishment, and message delivery.
+ * * The class is initialized with settings that define the initial number of
+ * copies of messages and whether the routing is in binary mode or not. It also
+ * provides methods to create new messages, update message properties, and
+ * manage message delivery.
+ * * The class is part of a larger routing framework and is intended to be used
+ * in conjunction with other routing decision engines and message routers.
+ * * The class is designed to be extensible and can be replicated to create new
+ * instances of the routing decision engine.
+ * * The class is implemented in Java and uses object-oriented programming
+ * principles. It is designed to be modular and reusable, allowing for easy
+ * modification and extension.
+ * * The class is part of a simulation framework for testing and evaluating
+ * routing algorithms in delay tolerant networks. It provides a flexible and
+ * extensible framework for building and testing routing algorithms.
+ * @author Herodion 
+ */
+
 public class SnWDecisionEngineRouting implements RoutingDecisionEngine { // Deklarasi kelas SnWDecisionEngineRouting
                                                                          // yang mengimplementasikan
                                                                          // RoutingDecisionEngine interface
