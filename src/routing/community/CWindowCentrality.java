@@ -265,6 +265,17 @@ public class CWindowCentrality implements Centrality
 
 	//tambah
 	// public double getLocalCentrality(Map<DTNHost, List<Duration>> connHistory) {
+	/**
+	 * Returns the computed local centrality based on the connection history and
+	 * the community detection algorithm.
+	 * 
+	 * @param connHistory the connection history of the nodes
+	 * @param cd         the community detection algorithm
+	 * @return the local centrality value
+	 * @author Herodion 
+	 * @date 2025-04-08
+	 * 
+	 */
 	@Override
 	public double[] getGlobalArrayCentrality(Map<DTNHost, List<Duration>> connHistory) {
     int timeNow = SimClock.getIntTime();
