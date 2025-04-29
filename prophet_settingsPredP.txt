@@ -1,13 +1,20 @@
+
 ## Scenario settings
-#Scenario.name = Reality-VarianceBuffer
-Scenario.name = TEST
+Scenario.name = Reality-ProphetReport
 Scenario.simulateConnections = false
 Scenario.updateInterval = 1
 # 43200s == 12h
-Scenario.endTime = 849090
+Scenario.endTime = 100000
 
 # 16981816 Reality 8490908
 # 274883 Haggle 3 Infocom 5
+
+## Interface-specific settings:
+# type : which interface class the interface belongs to
+# For different types, the sub-parameters are interface-specific
+# For SimpleBroadcastInterface, the parameters are:
+# transmitSpeed : transmit speed of the interface (bytes per second) 
+# transmitRange : range of the interface (meters)
 
 # "Bluetooth" interface for all nodes
 btInterface.type = SimpleBroadcastInterface
@@ -20,14 +27,13 @@ btInterface.scanInterval = 120
 Scenario.nrofHostGroups = 1
 
 # Router
-Group.movementModel = StationaryMovement
+Group.movementModel = RandomWaypoint
 #Group.router = EpidemicRouter
-Group.router = DecisionEngineRouter
-DecisionEngineRouter.decisionEngine = BubbleRap
-DecisionEngineRouter.communityDetectAlg = routing.KCliqueCommunityDetection
-DecisionEngineRouter.K = 5
-DecisionEngineRouter.familiarThreshold = 700
-DecisionEngineRouter.centralityAlg = routing.CWindowCentrality
+Group.router = ProphetProposed
+ProphetProposed.secondsInTimeUnit = 30
+#DecisionEngineRouter.decisionEngine = ProphetDecisionEngine
+#DecisionEngineRouter.decisionEngine = fuzzy.FuzzyBasedRouter
+#DecisionEngineRouter.fclSimilarity = fcl/SimilarityReality.fcl
 
 Group.bufferSize = 30M
 # 10M Haggle3 - Infocom5
@@ -37,12 +43,12 @@ Group.bufferSize = 30M
 Group.nrofInterfaces = 1
 Group.interface1 = btInterface
 # Walking speeds
-#Group.speed = 0.5, 1.5
+Group.speed = 0.5, 1.5
 
 # Message TTL of 300 minutes (5 hours)
 ## TTL 24 hours=1440, 1 week= 10080, 3 weeks= 30240, 5 weeks= 50400
 Group.msgTtl = 20160
-#4320 Haggle 3 infocom 5
+#360 Haggle 3 infocom 5
 #10080 Reality 20160
 
 # group1 (pedestrians) specific settings
@@ -51,7 +57,7 @@ Group1.groupID = P
 # Haggle3-Infocom5 43800
 
 Group1.nrofHosts = 97
-Group1.nodeLocation = 1, 1
+Group1.nodeLocation = 10, 10
 
 ## Message creation parameters 
 # How many event generators
@@ -75,15 +81,14 @@ Events2.interval = 1160, 1240
 # 1160, 1240 (~ 3 texts/ hour) Haggle3 - Infocom5, Reality2
 # 2320, 2480 (~ 1 texts/ hour)
 
-Events2.size = 20k
+Events2.size = 10k
 # range of message source/destination addresses
 Events2.hosts = 0,96
 Events2.prefix = M
 
-Events2.time = 0, 8470748
-#Events2.time = 0, 847074
+Events2.time = 0, 6792726
 #274883 Haggle 3 infocom 5 253283
-#16981816 Reality 16377016 15772216 6792726
+#16981816 Reality 16377016 15772216
 
 ## Movement model settings
 # seed for movement models' pseudo random number generator (default = 0)
@@ -91,21 +96,17 @@ MovementModel.rngSeed = 1
 # World's size for Movement Models without implicit size (width, height; meters)
 MovementModel.worldSize = 100, 100
 # How long time to move hosts in the world before real simulation
-#MovementModel.warmup = 1000
+MovementModel.warmup = 1000
 
 # how many reports to load
 Report.nrofReports = 1
 # length of the warm up period (simulated seconds)
 Report.warmup = 1
 # default directory of reports (can be overridden per Report with output setting)
-#Report.reportDir = reports/FuzzyFix/Reality
-#Report.reportDir = reports/FuzzyDataSet/Reality/SimilarityDataSet
-#Report.reportDir = reports/FuzzyDataSet/Reality/VarianceBufferDataSet
+Report.reportDir = reports/FuzzyFix/Reality
 # Report classes to load
-Report.reportDir = reports/uts/keren
-# Report classes to load
-Report.report1  = GlobalPopularityReport
-#Report.report1 = ResourceNodeTiapWaktuReport
+Report.report1 = MessageStatsReport
+#Report.report1 = ClosenessNodeTiapWaktuReport
 #Report.report1 = MessageDeliveredPerContactReport
 #Report.report2 = NumberOfHopsPerMsgPerTimeReport
 #Report.report3 = PercentageMessageDeliveredPerContactReport

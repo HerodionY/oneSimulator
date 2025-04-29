@@ -28,7 +28,8 @@ public class CWindowCentrality implements Centrality{
 	/** Time to wait before recomputing centrality values (node degree) */
 	protected static int COMPUTE_INTERVAL = 600; // seconds, i.e. 10 minutes
 	/** Width of each time interval in which to count the node's degree */
-	protected static int CENTRALITY_TIME_WINDOW = 21600; // 6 hours
+	//protected static int CENTRALITY_TIME_WINDOW = 21600; // 6 hours
+	protected static int CENTRALITY_TIME_WINDOW = 28800; // 24 hours
 	/** Number of time intervals to average the node's degree over */
 	protected static int EPOCH_COUNT = 787; // CHANGED FROM 5,48;
 	
@@ -231,7 +232,8 @@ public class CWindowCentrality implements Centrality{
 	@Override
 	public double[] getGlobalArrayCentrality(Map<DTNHost, List<Duration>> connHistory) {
     int timeNow = SimClock.getIntTime();
-    int timeWindow = 86400; // 24 jam dalam detik
+    //int timeWindow = 86400; // 24 jam dalam detik
+	int timeWindow = CENTRALITY_TIME_WINDOW; // 24 jam dalam detik
     int maxEpoch = EPOCH_COUNT;
 
     // Inisialisasi array untuk mencatat jumlah node yang terhubung tiap epoch
