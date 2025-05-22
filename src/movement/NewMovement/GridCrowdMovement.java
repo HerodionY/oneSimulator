@@ -2,10 +2,12 @@
  * Copyright 2010 Aalto University, ComNet
  * Released under GPLv3. See LICENSE.txt for details.
  */
-package movement;
+package movement.NewMovement;
 
 import core.Coord;
 import core.Settings;
+import movement.MovementModel;
+import movement.Path;
 
 /**
  * Random waypoint movement model. Creates zig-zag paths within the simulation

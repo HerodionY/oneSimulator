@@ -4,9 +4,10 @@
  */
 package movement;
 
+import java.util.Random;
+
 import core.Coord;
 import core.Settings;
-import java.util.Random;
 
 /**
  * Random waypoint movement model. Creates zig-zag paths within the simulation
@@ -21,6 +22,7 @@ public class CrowdMovement extends MovementModel {
   private Coord lastWaypoint;
 
   private int area;
+  private int homeArea;
 
   public CrowdMovement(Settings settings) {
     super(settings);
@@ -113,15 +115,68 @@ public class CrowdMovement extends MovementModel {
     }
   }
 
+  
+
   protected int chooseArea() {
     double probability = new Random().nextDouble();
 
     // if probability is under equal 0.2, the node will move in area 1 until 8
     // else, the node will move in area 9, which is in the center of the world
-    if (probability <= 0.3) {
-      return new Random().nextInt(9);
+
+    /** 
+     * if the node is in home area, it will move to area 1 until 8
+     * else, it will move to area 9
+     * probability <= 0.2 means the node will move to area 1 until 8
+     * probability > 0.2 means the node will move to area 9
+     * the node will move to area 1 until 8
+     * if the node is in home area
+     * else, it will move to area 9
+     * the node will move to area 1 until 8
+     * if the node is in home area
+     * else, it will move to area 9
+     * probability <= 0.2 means the node will move to area 1 until 8
+     * probability > 0.2 means the node will move to area 9
+     * the node will move to area 1 until 8
+     * if the node is in home area
+     * else, it will move to area 9
+     * probability <= 0.2 means the node will move to area 1 until 8
+     * probability > 0.2 means the node will move to area 9
+     * the node will move to area 1 until 8
+     * if the node is in home area
+     * else, it will move to area 9
+     * probability <= 0.2 means the node will move to area 1 until 8
+     * probability > 0.2 means the node will move to area 9
+     * the node will move to area 1 until 8
+     * if the node is in home area
+     * else, it will move to area 9
+     * 
+     * Tambahan
+     */
+    if (area == homeArea) {
+      if(probability <= 0.2) {
+        return new Random().nextInt(8) + 1;
+      } else {
+        return 9;
+      }
     } else {
-      return 9;
+      if(probability <= 0.2) {
+        return new Random().nextInt(8) + 1;
+      } else {
+        return 9;
+      }
     }
+    /**
+     * Aslinya
+     * if (probability <= 0.2) {
+     *   return new Random().nextInt(8) + 1;
+     * } else {
+     *   return 9;`
+     * }
+     */
+    // if (probability <= 0.3) {
+    //   return new Random().nextInt(9);
+    // } else {
+    //   return 9;
+    // }
   }
 }

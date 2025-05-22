@@ -1,10 +1,10 @@
 
 ## Scenario settings
-Scenario.name = Reality-ProphetReport
+Scenario.name = Reality-ProphetR0uter
 Scenario.simulateConnections = false
 Scenario.updateInterval = 1
 # 43200s == 12h
-Scenario.endTime = 100000
+Scenario.endTime = 849090
 
 # 16981816 Reality 8490908
 # 274883 Haggle 3 Infocom 5
@@ -27,10 +27,10 @@ btInterface.scanInterval = 120
 Scenario.nrofHostGroups = 1
 
 # Router
-Group.movementModel = RandomWaypoint
+Group.movementModel = StationaryMovement
 #Group.router = EpidemicRouter
-Group.router = ProphetProposed
-ProphetProposed.secondsInTimeUnit = 30
+Group.router = ProphetRouter
+ProphetRouter.secondsInTimeUnit = 30
 #DecisionEngineRouter.decisionEngine = ProphetDecisionEngine
 #DecisionEngineRouter.decisionEngine = fuzzy.FuzzyBasedRouter
 #DecisionEngineRouter.fclSimilarity = fcl/SimilarityReality.fcl

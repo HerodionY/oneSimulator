@@ -1,0 +1,182 @@
+===========================================================================
+              TUTORIAL: Cara Meng-Compile Model LevyWalk 
+                      pada The ONE Simulator (Java)
+===========================================================================
+
+📌 DESKRIPSI:
+File ini menjelaskan langkah-langkah lengkap untuk meng-compile dan menjalankan
+model movement baru bernama "LevyWalk" yang dibuat di dalam simulator
+DTN The ONE (Opportunistic Network Environment).
+
+Tujuan tutorial ini adalah agar file Java custom (seperti LevyWalk.java)
+dapat dikenali, dikompilasi, dan dijalankan dalam simulator The ONE.
+
+===========================================================================
+
+🎯 PRASYARAT SEBELUM MEMULAI:
+
+✅ Java Development Kit (JDK) 8 terinstall (REKOMENDASI!)
+   - Versi yang lebih baru (Java 17/23) dapat menyebabkan error saat runtime.
+   - Cek versi dengan:
+     > java -version
+
+✅ The ONE simulator sudah disiapkan di folder, misal:
+   D:\java\the-one-ql
+
+✅ File LevyWalk.java sudah diletakkan di:
+   src\movement\NewMovement\LevyWalk.java
+
+✅ Semua file library wajib tersedia di folder `lib/`, seperti:
+   - ECLA.jar
+   - DTNConsoleConnection.jar
+   - jFuzzyLogic.jar
+   - lombok.jar
+   - uncommons-maths-1.2.1.jar
+   - fastjson-1.2.7.jar
+
+===========================================================================
+
+📦 STRUKTUR DIREKTORI CONTOH:
+
+D:\java\the-one-ql\
+│
+├── lib\
+│   └── *.jar
+├── src\
+│   ├── core\
+│   ├── movement\
+│   │   └── NewMovement\
+│   │       └── LevyWalk.java
+│   └── ... (source file lainnya)
+├── target\
+│   └── (hasil file .class akan masuk sini)
+├── compile.bat
+├── gridcrown-prophet-multi.txt (file konfigurasi simulasi)
+└── run command → via terminal / script
+
+===========================================================================
+
+🧱 LANGKAH 1: MASUK KE FOLDER PROJECT DI TERMINAL
+
+Buka Command Prompt atau PowerShell:
+
+> cd D:\java\the-one-ql
+
+===========================================================================
+
+🧱 LANGKAH 2: KOMPILE FILE LEVYWALK.JAVA SECARA MANUAL
+
+Gunakan perintah ini untuk compile:
+
+> javac -d target -cp lib/* -sourcepath src src\movement\NewMovement\LevyWalk.java
+
+Penjelasan:
+- `-d target` → output .class disimpan ke folder `target`
+- `-cp lib/*` → menyertakan semua library di folder `lib`
+- `-sourcepath src` → lokasi file sumber kode
+- `src\movement\NewMovement\LevyWalk.java` → file yang dikompilasi
+
+✅ Hasil kompilasi akan menghasilkan:
+> target\movement\NewMovement\LevyWalk.class
+
+===========================================================================
+
+🧱 LANGKAH 3: JALANKAN SIMULASI DENGAN MODEL BARU
+
+Jalankan simulasi dengan perintah:
+
+> java -cp target;lib/* core.DTNSim -b 1 gridcrown-prophet-multi.txt
+
+Pastikan file konfigurasi `gridcrown-prophet-multi.txt` berisi baris:
+
+> MovementModel = movement.NewMovement.LevyWalk
+
+===========================================================================
+
+🛠 OPSIONAL: EDIT FILE COMPILE.BAT AGAR TERMASUK LEVYWALK
+
+Buka file `compile.bat`, dan tambahkan baris:
+
+> src\movement\NewMovement\*.java \
+
+atau gunakan `for`:
+
+
+
+
+TUTORIAL: Kompilasi Manual LevyWalk.java untuk The ONE Simulator
+================================================================
+
+LANGKAH 1: STRUKTUR FOLDER
+--------------------------
+Pastikan struktur direktori Anda seperti ini:
+
+D:\java\the-one-ql\
+│
+├── lib\
+│   ├── ECLA.jar
+│   ├── DTNConsoleConnection.jar
+│   ├── jFuzzyLogic.jar
+│   ├── lombok.jar
+│   ├── uncommons-maths-1.2.1.jar
+│   ├── fastjson-1.2.7.jar
+│
+├── src\
+│   └── movement\
+│       └── NewMovement\
+│           └── LevyWalk.java
+│   └── core, routing, input, dll (folder lain)
+│
+├── target\               (tempat hasil .class)
+├── gridcrown-prophet-multi.txt
+
+
+LANGKAH 2: BUKA TERMINAL
+------------------------
+Buka Command Prompt atau PowerShell, lalu ketik:
+
+cd D:\java\the-one-ql
+
+
+LANGKAH 3: KOMPILE MANUAL
+--------------------------
+Gunakan perintah di bawah ini untuk mengompile:
+
+javac -d target -cp lib/* -sourcepath src src\movement\NewMovement\LevyWalk.java
+
+Keterangan:
+- -d target            : hasil .class disimpan di folder target
+- -cp lib/*            : semua .jar di lib digunakan sebagai classpath
+- -sourcepath src      : menunjukkan semua sumber kode ada di src
+- src\...LevyWalk.java: file yang akan dikompile
+
+
+LANGKAH 4: CEK HASIL
+---------------------
+Periksa apakah file berikut sudah terbentuk:
+
+target\movement\NewMovement\LevyWalk.class
+
+Jika ya, berarti kompilasi sukses.
+
+
+LANGKAH 5: JALANKAN SIMULASI
+-----------------------------
+Pastikan file .txt mengarah ke class movement yang benar:
+
+MovementModel = movement.NewMovement.LevyWalk
+
+Lalu jalankan:
+
+java -cp target;lib/* core.DTNSim -b 1 gridcrown-prophet-multi.txt
+
+
+CATATAN TAMBAHAN:
+-----------------
+- Jika error 'Class not found', pastikan .class ada di target.
+- Jika pakai JDK versi tinggi (di atas 17), pertimbangkan gunakan JDK 8 atau 11.
+
+
+
+Cara Manual 
+javac -d target -cp lib/* -sourcepath src src\movement\NewMovement\LevyWalk.java
