@@ -6,6 +6,10 @@ import movement.MovementModel;
 import movement.Path;
 
 /**
+ * @see <a href="https://en.wikipedia.org/wiki/L%C3%A9vy_flight">Lévy flight</a>
+ * @see <a href="https://ieeexplore.ieee.org/document/5750071">On the Levy-Walk Nature of Human Mobility</a>
+ * 
+ * 
  * Kelas ini mengimplementasikan model pergerakan Levy Walk
  * Model ini digunakan untuk mensimulasikan pergerakan individu dalam suatu area
  * dengan pola yang mengikuti distribusi Levy.
@@ -43,10 +47,10 @@ public class LevyWalk extends MovementModel{
         super(settings);
 
         // Mengambil nilai parameter dari konfigurasi, default 3.0 jika tidak ada
-        this.alpha = settings.contains(ALPHA_S)? settings.getDouble(ALPHA_S) : 3.0;
+        this.alpha = settings.contains(ALPHA_S)? settings.getDouble(ALPHA_S) : 3.0f;
 
         // Mengambil nilai parameter dari konfigurasi, default 1.0 jika tidak ada
-        this.miu = settings.contains(MIU_S)? settings.getDouble(MIU_S) : 1.0;
+        this.miu = settings.contains(MIU_S)? settings.getDouble(MIU_S) : 1.0f;
 
         // Mengambil nilai parameter dari rentang langkah
         this.stepsRange = settings.getCsvInts(STEPSRANGE_S);
@@ -81,8 +85,8 @@ public class LevyWalk extends MovementModel{
                 // Panjang langkah dari distribusi Pareto
                 int step_length = nextPareto(alpha, 3);  // xm = 3
 
-                //Ambil arah acak dari (theta) antara 0 dan π
-                double theta = rng.nextDouble(0, Math.PI);
+                //Ambil arah acak dari (theta) antara 0 dan 2π
+                double theta = rng.nextDouble(0,2 *  Math.PI);
 
                 //Hitung koordinat tujuan berdasarkan arah dan panjang langkah 
                 nextX = (int) (currentLocation.getX() + step_length * Math.cos(theta));
@@ -105,7 +109,7 @@ public class LevyWalk extends MovementModel{
      */
     @Override
     public Coord getInitialLocation() {
-        assert rng != null : "RNG not initialized";
+        //assert rng != null : "RNG not initialized";
         // Menghasilkan koordinat acak dalam batas area
         return randomCoord();
     }
@@ -125,16 +129,16 @@ public class LevyWalk extends MovementModel{
      * @param xm nilai minimum untuk distribusi Pareto
      * @return angka acak dari distribusi Pareto
      */
-    private int nextPareto(double alpha, double xm) {
-        double uniformRandom = rng.nextDouble(); // acak antara 0 dan 1
-        return (int) (xm / Math.pow(1.0 - uniformRandom, 1.0 / alpha));
-    }
     // private int nextPareto(double alpha, double xm) {
-    //     assert rng != null : "RNG not initialized";
-    //     // Menghasilkan angka acak dari distribusi Pareto
-    //     double u = rng.nextDouble(0, 1);
-    //     return (int) (xm / Math.pow(u, 1.0 / (alpha - 1)));
+    //     double uniformRandom = rng.nextDouble(); // acak antara 0 dan 1
+    //     return (int) (xm / Math.pow(1.0 - uniformRandom, 1.0 / alpha));
     // }
+    private int nextPareto(double alpha, double xm) {
+        assert rng != null : "RNG not initialized";
+        // Menghasilkan angka acak dari distribusi Pareto
+        double u = rng.nextDouble(0, 1);
+        return (int) (xm / Math.pow(u, 1.0 / (alpha - 1)));
+    }
 
     /**
      * Menghasilkan koordinat acak dalam batas area
